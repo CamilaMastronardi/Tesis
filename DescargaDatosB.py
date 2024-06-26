@@ -18,7 +18,7 @@ def day_of_year(DD, MM, YYYY):
 def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
 
     DOY = str(day_of_year(int(DD), int(MM), int(YYYY)))
-    url = f"https://lasp.colorado.edu/maven/sdc/public/data/sci/mag/l2/{YYYY}/{MM}/mvn_mag_l2_{YYYY}{DOY}pl1s_{YYYY}{MM}{DD}_v01_r01.sts" 
+    url = f"https://lasp.colorado.edu/maven/sdc/public/data/sci/mag/l2/{YYYY}/{MM}/mvn_mag_l2_{YYYY}{DOY}ss1s_{YYYY}{MM}{DD}_v01_r01.sts" 
     #esto despues lo tengo que adaptar porque estaba colapsada la pagina
 
 # Realizar una solicitud GET a una URL
