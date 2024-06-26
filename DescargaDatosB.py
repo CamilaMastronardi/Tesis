@@ -26,8 +26,8 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
     response.raise_for_status() #se fija que onda el status, por ejemplo si es 404 (todo mal), 403 (sin permisos), 200 (todo ok)
 
 #Creo carpeta para la bajada de los datos
-    datosCampoPath = "/Escritorio/Tesis/datos_campo_magnetico"
-    #datosCampoPath = "/home/camila/Escritorio/Tesis/datos_campo_magnetico"
+    #datosCampoPath = "/Escritorio/Tesis/datos_campo_magnetico" #ESTE ES EL QUE USO EN MI PC
+    datosCampoPath = "/home/camila/Escritorio/Camila/datos_campo_magnetico"#ESTE ES EL QUE USO EN EL IAFE
     if not os.path.exists(datosCampoPath):
       os.makedirs(datosCampoPath)
 
