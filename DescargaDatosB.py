@@ -27,7 +27,8 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
 
 #Creo carpeta para la bajada de los datos
     #datosCampoPath = "/Escritorio/Tesis/datos_campo_magnetico" #ESTE ES EL QUE USO EN MI PC
-    datosCampoPath = "/home/camila/Escritorio/Camila/datos_campo_magnetico"#ESTE ES EL QUE USO EN EL IAFE
+    #datosCampoPath = "/home/camila/Escritorio/Camila/datos_campo_magnetico"#ESTE ES EL QUE USO EN EL IAFE
+    datosCampoPath = '/app/datos_campo_magnetico'
     if not os.path.exists(datosCampoPath):
       os.makedirs(datosCampoPath)
 

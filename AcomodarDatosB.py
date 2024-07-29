@@ -16,15 +16,20 @@ def acomodarDatos(YYYY,MM,DD):
     
     
     #IAFE
-    df = pd.read_csv(f'/home/camila/Escritorio/Camila/datos_campo_magnetico/datos_{DD}-{MM}-{YYYY}.csv', 
+'''    df = pd.read_csv(f'/home/camila/Escritorio/Camila/datos_campo_magnetico/datos_{DD}-{MM}-{YYYY}.csv', 
                      sep='\s+',skiprows=149, header=None, lineterminator='\n', names = col_names, 
                       usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
-    '''
+'''
+'''
     #MI PC
     df = pd.read_csv(f'C:/Escritorio/Tesis/datos_campo_magnetico/datos_{DD}-{MM}-{YYYY}.csv', 
                      header=None, lineterminator='\n', sep='\s+',skiprows=149, names = col_names, 
                      usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
     '''
+    df = pd.read_csv(f'/app/datos_campo_magnetico/datos_{DD}-{MM}-{YYYY}.csv', 
+                     sep='\s+',skiprows=149, header=None, lineterminator='\n', names = col_names, 
+                      usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
+
     
     mes = round(df.nro_día/30) + 1
     dia = df.nro_día - (mes-1)
