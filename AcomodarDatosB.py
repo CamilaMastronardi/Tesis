@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,9 +6,7 @@ import sys
 col_names = ["año","nro_día","hora","minuto", "segundo", "milisegundo", "dia decimal", "Bx", "By", "Bz", "rangoB", "posX", "posY", "posZ", "motorX", "motorY", "motorZ", "rango_motor"]
 
 def acomodarDatos(YYYY,MM,DD):
-  df = pd.read_csv(f'/app/datos_campo_magnetico/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=149, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
-
-  
+  df = pd.read_csv(f'/app/datos_campo_magnetico_crudos/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=149, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
   mes = round(df.nro_día/30) + 1
   dia = df.nro_día - (mes-1)
   
@@ -23,7 +14,7 @@ def acomodarDatos(YYYY,MM,DD):
   minuto = df.minuto
   seg = df.segundo
   
-  time = hora + minuto/60 + seg/3600
+  time = hora + minuto/60 + seg/3600 #tiempo en horas
   
   B_vector = np.array([df.Bx,df.By,df.Bz]).transpose()
   B_norm = np.zeros(len(B_vector[:,0]))

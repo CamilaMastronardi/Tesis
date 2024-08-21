@@ -26,9 +26,7 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
     response.raise_for_status() #se fija que onda el status, por ejemplo si es 404 (todo mal), 403 (sin permisos), 200 (todo ok)
 
 #Creo carpeta para la bajada de los datos
-    #datosCampoPath = "/Escritorio/Tesis/datos_campo_magnetico" #ESTE ES EL QUE USO EN MI PC
-    #datosCampoPath = "/home/camila/Escritorio/Camila/datos_campo_magnetico"#ESTE ES EL QUE USO EN EL IAFE
-    datosCampoPath = '/app/datos_campo_magnetico'
+    datosCampoPath = '/app/datos_campo_magnetico_crudos'
     if not os.path.exists(datosCampoPath):
       os.makedirs(datosCampoPath)
 
@@ -41,7 +39,7 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
 if __name__== '__main__' :
 
   if len(sys.argv) !=2: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python DescargaDatosB.py YYYY-MM-DD")
+        print("Uso: python3 DescargaDatosB.py YYYY-MM-DD")
         sys.exit(1) #sale del programa
     # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
     
