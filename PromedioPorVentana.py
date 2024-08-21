@@ -19,15 +19,15 @@ plt.style.use("./matplotlibStyles.txt")
 def filtrarVentana(YYYY,MM,DD):
 
     data = acomodarDatos(YYYY, MM, DD) #es un pd.dataframe
-    Bx_filtrado = data.Bx.rolling(100, center = True).sum()
-    By_filtrado = data.By.rolling(100, center = True).sum()
-    Bz_filtrado = data.Bz.rolling(100, center = True).sum()
+    Bx_filtrado = data.Bx.rolling(100, center = True).mean()
+    By_filtrado = data.By.rolling(100, center = True).mean()
+    Bz_filtrado = data.Bz.rolling(100, center = True).mean()
     B_vector_filtrado = np.array([Bx_filtrado,By_filtrado,Bz_filtrado]).transpose()
     B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
     for i in range(len(B_vector_filtrado[:,0])):
         B_f = np.linalg.norm(B_vector_filtrado[i])
         B_filtrado[i] = B_f
-    time_filtrado = data.time.rolling(100, center = True).sum()
+    time_filtrado = data.time.rolling(100, center = True).mean()
    
     Bx = data.Bx
     By = data.By

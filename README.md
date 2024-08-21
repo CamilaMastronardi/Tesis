@@ -13,3 +13,10 @@ docker compose exec tesis /bin/bash
 python3 DescargaDatosB.py 2014-12-25
 ```
 Se puede reemplazar por otro año-mes-día
+
+### 4. Ejecutar los filtros de los datos
+```
+python3 PromedioPorVentana.py 2014-12-25
+python3 PasaBajos.py 2014-12-25
+```
+Se puede reemplazar por otro año-mes-día
