@@ -29,7 +29,7 @@ def acomodarDatos(YYYY,MM,DD):
       r = np.linalg.norm(r_vector[i])
       r_sat [i] = r - radio_marte_prom
   
-  return(pd.DataFrame({'time': time, 'mod_B': B_norm, 'Bx': df.Bx, 'By':df.By, 'Bz':df.Bz, 'r_sat': r_sat})[:-1])
+  return pd.DataFrame({'time': time, 'mod_B': B_norm, 'Bx': df.Bx, 'By': df.By, 'Bz': df.Bz, 'r_sat': r_sat, 'posX': df.posX, 'posY': df.posY, 'posZ': df.posZ})[:-1]
 
 if __name__== '__main__' :
 
