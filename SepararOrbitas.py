@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 from AcomodarDatosB import acomodarDatos
 plt.style.use("./matplotlibStyles.txt")
 
-def separar_orbitas(df):
+def separar_orbitas(YYYY, MM, DD):
+
+    df = acomodarDatos(YYYY, MM, DD)
+
     # Identifico cambios de signo en posX
     df['cambio'] = (df['posX'] > 0) & (df['posX'].shift(1) <= 0)
     df['orbita'] = df['cambio'].cumsum() # Creo columna para las órbitas 
@@ -27,6 +30,4 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         fecha = sys.argv[1]  # Usa el argumento indicado para ejecutar el programa
         YYYY, MM, DD = fecha.split('-')
-
-        df = acomodarDatos(YYYY, MM, DD)
-        df_orbitas_positivas = separar_orbitas(df)
+        df_orbitas_positivas = separar_orbitas(YYYY, MM, DD)

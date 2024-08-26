@@ -7,7 +7,7 @@ Created on Mon Jun 24 09:18:51 2024
 
 import numpy as np
 from matplotlib import pyplot as plt
-from AcomodarDatosB import acomodarDatos
+from SepararOrbitas import separar_orbitas
 import pandas as pd
 import sys
 import os
@@ -18,38 +18,48 @@ plt.style.use("./matplotlibStyles.txt")
 #hago la función que hace el promedio por ventanas a cada coordenada del campo magnetico 
 def filtrarVentana(YYYY,MM,DD):
 
-    data = acomodarDatos(YYYY, MM, DD) #es un pd.dataframe
-    Bx_filtrado = data.Bx.rolling(100, center = True).mean()
-    By_filtrado = data.By.rolling(100, center = True).mean()
-    Bz_filtrado = data.Bz.rolling(100, center = True).mean()
-    B_vector_filtrado = np.array([Bx_filtrado,By_filtrado,Bz_filtrado]).transpose()
-    B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
-    for i in range(len(B_vector_filtrado[:,0])):
-        B_f = np.linalg.norm(B_vector_filtrado[i])
-        B_filtrado[i] = B_f
-    time_filtrado = data.time.rolling(100, center = True).mean()
+    data = separar_orbitas(YYYY, MM, DD) #es un pd.dataframe
+    n_orbitas = 4
+    for orbita in range(1, n_orbitas+1):
+      data_orbita = data[data['orbita']==orbita]
+      Bx_filtrado = data_orbita.Bx.rolling(20, center = True).mean() #a un dato por segundo esto es hacer promedio cada 20 segundos
+      By_filtrado = data_orbita.By.rolling(20, center = True).mean()
+      Bz_filtrado = data_orbita.Bz.rolling(20, center = True).mean()
+      B_vector_filtrado = np.array([Bx_filtrado,By_filtrado,Bz_filtrado]).transpose()
+      B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
+      for i in range(len(B_vector_filtrado[:,0])):
+          B_f = np.linalg.norm(B_vector_filtrado[i])
+          B_filtrado[i] = B_f
+      time_filtrado = data_orbita.time.rolling(100, center = True).mean()
    
-    Bx = data.Bx
-    By = data.By
-    Bz = data.Bz
-    time = data.time
-    B = data.mod_B
-    r_sat = data.r_sat
+      Bx = data_orbita.Bx
+      By = data_orbita.By
+      Bz = data_orbita.Bz
+      time = data_orbita.time
+      B = data_orbita.mod_B
+      r_sat = data_orbita.r_sat
+      x_sat = data_orbita.posX
     
-    Path = '/app/datos_campo_magnetico_ventana'
-    if not os.path.exists(Path):
-      os.makedirs(Path)
+      Path = f'/app/datos_campo_magnetico_ventana'
+      if not os.path.exists(Path):
+        os.makedirs(Path)
 
 #Crea u archivo para meter los datos que salen de la API
-    archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}.csv")
+      archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
     #por ultimo escribe en el archivo lo que sale de la API
-    data_filtrada = pd.DataFrame({'time': time_filtrado, 'mod_B': B_filtrado, 'Bx': Bx_filtrado, 'By':By_filtrado, 'Bz':Bz_filtrado, 'r_sat': r_sat})
-    data_filtrada.to_csv(archivoDestino)
+      data_filtrada = pd.DataFrame({'time': time_filtrado, 'mod_B': B_filtrado, 'Bx': Bx_filtrado, 'By':By_filtrado, 'Bz':Bz_filtrado, 'r_sat': r_sat})
+      data_filtrada.to_csv(archivoDestino)
 
-    return(B, Bx, By, Bz, time, B_filtrado, Bx_filtrado, By_filtrado, Bz_filtrado, time_filtrado, r_sat)
+    return(n_orbitas)
 
 # Ploteos
-def graficadora(B, Bx, By, Bz, t, r_sat, DD, MM, YYYY, caso):
+def graficadora(DD, MM, YYYY, n_orbitas):
+  Path = f'/app/datos_campo_magnetico_ventana'
+  for orbita in range(1, n_orbitas+1):
+    archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
+    df = pd.read_csv(archivoDestino)
+    t, B, Bx, By, Bz, r_sat = df.time, df.mod_B, df.Bx, df.By, df.Bz, df.r_sat
+
     fig, (ax1, ax3) = plt.subplots(2, 1, figsize=(20, 14))
     ax1.set_title(f'{DD}-{MM}-{YYYY}')
     ax2 = ax1.twinx()
@@ -70,10 +80,10 @@ def graficadora(B, Bx, By, Bz, t, r_sat, DD, MM, YYYY, caso):
     ax4.set_ylabel('altura [Km]')
     ax3.grid()
     
-    Path = '/app/datos_campo_magnetico_ventana/Ploteos'
-    if not os.path.exists(Path):
-      os.makedirs(Path)
-    plt.savefig(f'/app/datos_campo_magnetico_ventana/Ploteos/{YYYY}_{MM}_{DD}_{caso}')
+    PathFig = '/app/datos_campo_magnetico_ventana/Ploteos'
+    if not os.path.exists(PathFig):
+      os.makedirs(PathFig)
+    plt.savefig(f'/app/datos_campo_magnetico_ventana/Ploteos/{YYYY}_{MM}_{DD}_ventana_{orbita}')
 
 if __name__== '__main__' :
 
@@ -85,8 +95,7 @@ if __name__== '__main__' :
   if len(sys.argv) == 2:
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
-    B, Bx, By, Bz, time, B_filtrado, Bx_filtrado, By_filtrado, Bz_filtrado, time_filtrado, r_sat = filtrarVentana(YYYY,MM,DD)
-    graficadora(B, Bx, By, Bz, time, r_sat, DD, MM, YYYY, 'crudo')
-    graficadora(B_filtrado, Bx_filtrado, By_filtrado, Bz_filtrado, time_filtrado, r_sat, DD, MM, YYYY, 'ventana')
+    n_orbita = filtrarVentana(YYYY,MM,DD)
+    graficadora(DD, MM, YYYY, n_orbita)
   # Llama a la función para descargar datos de campo magnetico
     print('hecho')
