@@ -19,7 +19,7 @@ plt.style.use("./matplotlibStyles.txt")
 def filtrarVentana(YYYY,MM,DD):
 
     data = separar_orbitas(YYYY, MM, DD) #es un pd.dataframe
-    n_orbitas = 4
+    n_orbitas = max(data['orbita'])
     for orbita in range(1, n_orbitas+1):
       data_orbita = data[data['orbita']==orbita]
       Bx_filtrado = data_orbita.Bx.rolling(20, center = True).mean() #a un dato por segundo esto es hacer promedio cada 20 segundos
