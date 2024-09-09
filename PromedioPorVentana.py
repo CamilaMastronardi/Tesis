@@ -7,7 +7,7 @@ Created on Mon Jun 24 09:18:51 2024
 
 import numpy as np
 from matplotlib import pyplot as plt
-from SepararOrbitas import separar_orbitas
+from SepararHemisferios import separarHemisferios
 import pandas as pd
 import sys
 import os
@@ -17,8 +17,7 @@ plt.style.use("./matplotlibStyles.txt")
 
 #hago la función que hace el promedio por ventanas a cada coordenada del campo magnetico 
 def filtrarVentana(YYYY,MM,DD):
-
-    data = separar_orbitas(YYYY, MM, DD) #es un pd.dataframe
+    data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
     n_orbitas = max(data['orbita'])
     for orbita in range(1, n_orbitas+1):
       data_orbita = data[data['orbita']==orbita]
@@ -30,7 +29,7 @@ def filtrarVentana(YYYY,MM,DD):
       for i in range(len(B_vector_filtrado[:,0])):
           B_f = np.linalg.norm(B_vector_filtrado[i])
           B_filtrado[i] = B_f
-      time_filtrado = data_orbita.time.rolling(100, center = True).mean()
+      time_filtrado = data_orbita.time.rolling(10, center = True).mean()
    
       Bx = data_orbita.Bx
       By = data_orbita.By

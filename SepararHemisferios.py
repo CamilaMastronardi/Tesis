@@ -14,15 +14,7 @@ def separarHemisferios(YYYY, MM, DD):
     df['hemisferio'] = latitud['cambio'].cumsum() # Creo columna para hemisferios
 
     # Filtro filas donde la latitud es positivo
-    df_latitud_positivas = df[latitud['cambio']==True]
-    
-    fig, (ax1, ax2) = plt.subplots(2,1)
-    ax1.plot(latitud[0], '.',label='latitud')
-    ax1.plot(latitud[0][latitud['cambio']==True],'o', color='darkblue')
-    ax2.plot(df['mod_B'], label='modulo de B')
-    ax2.plot(df['mod_B'][latitud['cambio']==True],'o', color='darkblue')
-    plt.legend()
-    plt.savefig('prueba.jpg')
+    df_latitud_positivas = df[latitud[0]>0]
     
     return df_latitud_positivas
 

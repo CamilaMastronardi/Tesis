@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 from scipy import fftpack
 from AcomodarDatosB import acomodarDatos
-from SepararOrbitas import separar_orbitas
+from SepararHemisferios import separarHemisferios
 import sys
 import os
 import pandas as pd
@@ -18,7 +18,7 @@ plt.style.use("./matplotlibStyles.txt")
 
 #hago el filtro para la orbita total y despues separo
 def pasaBajos(YYYY, MM, DD): # Diseño del filtro pasa bajos
-    data = separar_orbitas(YYYY, MM, DD) #es un pd.dataframe
+    data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
     n_orbitas = max(data['orbita'])
 
     def butter_lowpass(cutoff, fs, order):
@@ -83,7 +83,7 @@ def pasaBajos(YYYY, MM, DD): # Diseño del filtro pasa bajos
 
 def graficadora(DD, MM, YYYY, n_orbitas):
   Path = f'/app/datos_campo_magnetico_pasabajos'
-  data = separar_orbitas(YYYY, MM, DD) #es un pd.dataframe
+  data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
   for orbita in range(1, n_orbitas+1):
     archivoDestino = os.path.join(Path, f"pasabajos_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
     data_cruda = data[data['orbita']==orbita]
