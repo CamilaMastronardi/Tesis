@@ -25,10 +25,11 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
 # Realizar una solicitud GET a una URL
     response = requests.get(url)
     response.raise_for_status() #se fija que onda el status, por ejemplo si es 404 (todo mal), 403 (sin permisos), 200 (todo ok)
+    lines = response.text.splitlines()
 
     response_pc = requests.get(url_pc)
     response_pc.raise_for_status() #se fija que onda el status, por ejemplo si es 404 (todo mal), 403 (sin permisos), 200 (todo ok)
-    lines_pc = response.text.splitlines()
+    lines_pc = response_pc.text.splitlines()
 
 #Creo carpeta para la bajada de los datos
     datosCampoPath = '/app/datos_campo_magnetico_crudos'
@@ -41,9 +42,13 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
 #Crea u archivo para meter los datos que salen de la API
     archivoDestino = os.path.join(datosCampoPath, f"datos_{DD}-{MM}-{YYYY}.csv")
     archivoDestino_pc = os.path.join(datosCampoPath_pc, f"z_{DD}-{MM}-{YYYY}_pc.csv")
-    #por ultimo escribe en el archivo lo que sale de la API
+    
+#por ultimo escribe en el archivo lo que sale de la API
     with open(archivoDestino, "w") as archivo:
-        archivo.write(response.text)
+      for line in lines:
+        if line.strip() and line.startswith('  ' + YYYY):
+            archivo.write(line + '\n')
+
     
 #guardo solo la coordenada z en coordenadas centradas en el planeta
     with open(archivoDestino_pc, "w") as archivo:

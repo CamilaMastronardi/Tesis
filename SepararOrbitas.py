@@ -4,22 +4,23 @@ import matplotlib.pyplot as plt
 from AcomodarDatosB import acomodarDatos
 plt.style.use("./matplotlibStyles.txt")
 
-def separar_orbitas(YYYY, MM, DD):
+def separarOrbitas(YYYY, MM, DD):
 
     df = acomodarDatos(YYYY, MM, DD)
-
+    latitud = pd.read_csv(f'/app/datos_campo_magnetico_crudos_pc/z_{DD}-{MM}-{YYYY}_pc.csv', header=None, lineterminator='\n')[:-1]
     # Identifico cambios de signo en posX
     df['cambio'] = (df['posX'] > 0) & (df['posX'].shift(1) <= 0)
     df['orbita'] = df['cambio'].cumsum() # Creo columna para las órbitas 
-    
+
     # Filtro filas donde posX es positivo
     df_positivas = df[df['posX'] > 0]
+    latitud_x_positivas = latitud[df['posX'] > 0]
     df_orbitas_positivas = df_positivas.groupby('orbita').filter(lambda x: not x.empty)
     
     # Elimino la columna auxiliar 'cambio'
     df_orbitas_positivas = df_orbitas_positivas.drop(columns=['cambio'])
     
-    return df_orbitas_positivas
+    return df_orbitas_positivas, latitud_x_positivas
 
 if __name__ == '__main__':
 
@@ -30,4 +31,4 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         fecha = sys.argv[1]  # Usa el argumento indicado para ejecutar el programa
         YYYY, MM, DD = fecha.split('-')
-        df_orbitas_positivas = separar_orbitas(YYYY, MM, DD)
+        df_orbitas_positivas = separarOrbitas(YYYY, MM, DD)

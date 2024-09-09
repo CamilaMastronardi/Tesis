@@ -6,7 +6,7 @@ import sys
 col_names = ["año","nro_día","hora","minuto", "segundo", "milisegundo", "dia decimal", "Bx", "By", "Bz", "rangoB", "posX", "posY", "posZ", "motorX", "motorY", "motorZ", "rango_motor"]
 
 def acomodarDatos(YYYY,MM,DD):
-  df = pd.read_csv(f'/app/datos_campo_magnetico_crudos/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=149, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
+  df = pd.read_csv(f'/app/datos_campo_magnetico_crudos/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=0, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
   mes = round(df.nro_día/30) + 1
   dia = df.nro_día - (mes-1)
   
