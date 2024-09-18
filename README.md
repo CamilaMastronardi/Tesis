@@ -4,9 +4,14 @@
 
 ### 2. Levantar el enviroment en Docker
 ```
-docker compose up -d
-docker compose exec tesis /bin/bash
+./start_docker.sh
 ```
+Para esto tiene que ser ejecutable el archivo. Si no lo es, puede que haga falta cambiar la configuración de permisos (una única vez):
+```
+chmod +x start_docker.sh
+```
+
+
 
 ### 3. Ejecutar la descarga de datos
 ```
