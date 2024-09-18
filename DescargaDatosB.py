@@ -9,6 +9,7 @@ import sys
 import os
 import requests
 from datetime import datetime
+from datetime import timedelta
 
 def day_of_year(DD, MM, YYYY):
     date = datetime(YYYY, MM, DD)
@@ -59,8 +60,8 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
 
 if __name__== '__main__' :
 
-  if len(sys.argv) !=2: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python3 DescargaDatosB.py YYYY-MM-DD")
+  if len(sys.argv) not in (2,3): #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
+        print("Uso: python3 DescargaDatosB.py YYYY_i-MM_i-DD_i YYYY_f-MM_f-DD_f (fecha_inicio fecha_fin, fecha_fin es opcional)")
         sys.exit(1) #sale del programa
     # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
     
@@ -70,3 +71,20 @@ if __name__== '__main__' :
   # Llama a la función para descargar datos de campo magnetico
     descargarDatosCampo(YYYY,MM,DD)
     print('hecho')
+  elif len(sys.argv) == 3:
+    parametro_inicial = sys.argv[1]
+    parametro_final = sys.argv[2]
+    YYYY_i, MM_i, DD_i = (int(f) for f in parametro_inicial.split('-'))
+    YYYY_f, MM_f, DD_f = (int(f) for f in parametro_final.split('-'))
+    fecha_inicial = datetime(YYYY_i,MM_i,DD_i).date()
+    fecha_final = datetime(YYYY_f,MM_f,DD_f).date()
+    print(f"Descargando datos en rango {fecha_inicial} - {fecha_final}")
+    fecha_actual = fecha_inicial
+    count = 1
+    while fecha_actual <= fecha_final:
+      print(f"Descargando dia numero {count} de {fecha_final-fecha_inicial}")
+      descargarDatosCampo(fecha_actual.strftime('%Y'),
+                          fecha_actual.strftime('%m'),
+                          fecha_actual.strftime('%d'))
+      fecha_actual += timedelta(days=1)
+      count += 1
