@@ -16,21 +16,22 @@ import pandas as pd
 
 plt.style.use("./matplotlibStyles.txt")
 
+def butter_lowpass(cutoff, fs, order):
+    nyq = 0.5 * fs  # Frecuencia de Nyquist
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+def lowpass_filter(data, cutoff, fs, order):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
+
+
 #hago el filtro para la orbita total y despues separo
 def pasaBajos(YYYY, MM, DD): # Diseño del filtro pasa bajos
     data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
     n_orbitas = max(data['orbita'])
-
-    def butter_lowpass(cutoff, fs, order):
-        nyq = 0.5 * fs  # Frecuencia de Nyquist
-        normal_cutoff = cutoff / nyq
-        b, a = butter(order, normal_cutoff, btype='low', analog=False)
-        return b, a
-
-    def lowpass_filter(data, cutoff, fs, order):
-        b, a = butter_lowpass(cutoff, fs, order=order)
-        y = filtfilt(b, a, data)
-        return y
 
     for orbita in range(1, n_orbitas+1):
         data_orbita = data[data['orbita']==orbita]
