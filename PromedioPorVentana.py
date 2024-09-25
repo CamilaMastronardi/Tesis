@@ -21,9 +21,9 @@ def filtrarVentana(YYYY,MM,DD):
     n_orbitas = max(data['orbita'])
     for orbita in range(1, n_orbitas+1):
       data_orbita = data[data['orbita'] == orbita]
-      Bx_filtrado = data_orbita.Bx.rolling(20, center=True).mean().dropna() # Eliminamos filas con NaN
-      By_filtrado = data_orbita.By.rolling(20, center=True).mean().dropna()
-      Bz_filtrado = data_orbita.Bz.rolling(20, center=True).mean().dropna()
+      Bx_filtrado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
+      By_filtrado = data_orbita.By.rolling(10, center=True).mean().dropna()
+      Bz_filtrado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
       
       B_vector_filtrado = np.array([Bx_filtrado, By_filtrado, Bz_filtrado]).transpose()
       B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
@@ -32,8 +32,8 @@ def filtrarVentana(YYYY,MM,DD):
           B_filtrado[i] = B_f
       
       # Eliminar NaNs
-      time_filtrado = data_orbita.time.rolling(20, center=True).mean().dropna()
-      r_sat_filtrado = data_orbita.r_sat.rolling(20, center=True).mean().dropna()
+      time_filtrado = data_orbita.time.rolling(10, center=True).mean().dropna()
+      r_sat_filtrado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
 
       Bx = data_orbita.Bx.dropna()
       By = data_orbita.By.dropna()
