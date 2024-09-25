@@ -6,7 +6,7 @@ Created on Mon Jun 24 11:36:07 2024
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import butter, filtfilt
+from Filtros import butter_lowpass, lowpass_filter
 from scipy import fftpack
 from AcomodarDatosB import acomodarDatos
 from SepararHemisferios import separarHemisferios
@@ -15,18 +15,6 @@ import os
 import pandas as pd
 
 plt.style.use("./matplotlibStyles.txt")
-
-def butter_lowpass(cutoff, fs, order):
-    nyq = 0.5 * fs  # Frecuencia de Nyquist
-    normal_cutoff = cutoff / nyq
-    b, a = butter(order, normal_cutoff, btype='low', analog=False)
-    return b, a
-
-def lowpass_filter(data, cutoff, fs, order):
-    b, a = butter_lowpass(cutoff, fs, order=order)
-    y = filtfilt(b, a, data)
-    return y
-
 
 #hago el filtro para la orbita total y despues separo
 def pasaBajos(YYYY, MM, DD): # Diseño del filtro pasa bajos
