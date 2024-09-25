@@ -15,49 +15,62 @@ import csv
 
 plt.style.use("./matplotlibStyles.txt")
 
+def n_orbita(YYYY, MM, DD):
+  print("n_orbita")
+  print(YYYY,MM,DD)  
+  data = separarHemisferios(YYYY, MM, DD)
+  return max(data['orbita'])
+
+def filtrarVentana(YYYY,MM,DD, orbita):
+  data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
+  data_orbita = data[data['orbita'] == orbita]
+
+  Bx_filtrado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
+  By_filtrado = data_orbita.By.rolling(10, center=True).mean().dropna()
+  Bz_filtrado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
+  
+  B_vector_filtrado = np.array([Bx_filtrado, By_filtrado, Bz_filtrado]).transpose()
+  B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
+  for i in range(len(B_vector_filtrado[:,0])):
+      B_f = np.linalg.norm(B_vector_filtrado[i])
+      B_filtrado[i] = B_f
+  
+  # Eliminar NaNs
+  time_filtrado = data_orbita.time.rolling(10, center=True).mean().dropna()
+  r_sat_filtrado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
+
+  Bx = data_orbita.Bx.dropna()
+  By = data_orbita.By.dropna()
+  Bz = data_orbita.Bz.dropna()
+  time = data_orbita.time.dropna()
+  B = data_orbita.mod_B.dropna()
+
+  return pd.DataFrame({'time': time_filtrado, 'mod_B': B_filtrado, 
+                      'Bx': Bx_filtrado, 'By': By_filtrado, 
+                      'Bz': Bz_filtrado, 'r_sat': r_sat_filtrado})
+
+
 #hago la función que hace el promedio por ventanas a cada coordenada del campo magnetico  
-def filtrarVentana(YYYY,MM,DD):
-    data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
-    n_orbitas = max(data['orbita'])
-    for orbita in range(1, n_orbitas+1):
-      data_orbita = data[data['orbita'] == orbita]
-      Bx_filtrado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
-      By_filtrado = data_orbita.By.rolling(10, center=True).mean().dropna()
-      Bz_filtrado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
-      
-      B_vector_filtrado = np.array([Bx_filtrado, By_filtrado, Bz_filtrado]).transpose()
-      B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
-      for i in range(len(B_vector_filtrado[:,0])):
-          B_f = np.linalg.norm(B_vector_filtrado[i])
-          B_filtrado[i] = B_f
-      
-      # Eliminar NaNs
-      time_filtrado = data_orbita.time.rolling(10, center=True).mean().dropna()
-      r_sat_filtrado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
+def guardarTodasLasOrbitasFiltradas(YYYY,MM,DD):
 
-      Bx = data_orbita.Bx.dropna()
-      By = data_orbita.By.dropna()
-      Bz = data_orbita.Bz.dropna()
-      time = data_orbita.time.dropna()
-      B = data_orbita.mod_B.dropna()
+  Path = f'/app/datos_campo_magnetico_ventana'
+  if not os.path.exists(Path):
+    os.makedirs(Path)
 
-      Path = f'/app/datos_campo_magnetico_ventana'
-      if not os.path.exists(Path):
-        os.makedirs(Path)
-
-      #Crea u archivo para meter los datos que salen de la API
-      archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
-      
-      # Escribe en el archivo lo que sale de la API
-      data_filtrada = pd.DataFrame({'time': time_filtrado, 'mod_B': B_filtrado, 'Bx': Bx_filtrado, 'By': By_filtrado, 'Bz': Bz_filtrado, 'r_sat': r_sat_filtrado})
-      data_filtrada.to_csv(archivoDestino)
-
-    return n_orbitas
+  n = n_orbita(YYYY, MM, DD)
+  for orbita in range(1, n+1):
+    #Crea u archivo para meter los datos que salen de la API
+    archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
+    # Escribe en lo que sale de filtrar la orbita
+    data_filtrada = filtrarVentana(YYYY, MM, DD, orbita)
+    data_filtrada.to_csv(archivoDestino)
 
 # Ploteos
-def graficadora(DD, MM, YYYY, n_orbitas):
+def graficadora(YYYY, MM, DD):
+
   Path = f'/app/datos_campo_magnetico_ventana'
-  for orbita in range(1, n_orbitas+1):
+  n = n_orbita(YYYY, MM, DD)
+  for orbita in range(1, n+1):
     archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
     df = pd.read_csv(archivoDestino)
     t, B, Bx, By, Bz, r_sat = df.time, df.mod_B, df.Bx, df.By, df.Bz, df.r_sat
@@ -97,7 +110,7 @@ if __name__== '__main__' :
   if len(sys.argv) == 2:
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
-    n_orbita = filtrarVentana(YYYY,MM,DD)
-    graficadora(DD, MM, YYYY, n_orbita)
+    guardarTodasLasOrbitasFiltradas(YYYY, MM, DD)
+    graficadora(YYYY, MM, DD)
   # Llama a la función para descargar datos de campo magnetico
     print('hecho')  
