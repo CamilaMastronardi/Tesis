@@ -16,8 +16,6 @@ import csv
 plt.style.use("./matplotlibStyles.txt")
 
 def n_orbita(YYYY, MM, DD):
-  print("n_orbita")
-  print(YYYY,MM,DD)  
   data = separarHemisferios(YYYY, MM, DD)
   return max(data['orbita'])
 

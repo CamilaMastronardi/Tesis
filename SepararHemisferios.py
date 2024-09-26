@@ -3,9 +3,20 @@ import sys
 import matplotlib.pyplot as plt
 from AcomodarDatosB import acomodarDatos
 from SepararOrbitas import separarOrbitas
+import numpy as np
+
 plt.style.use("./matplotlibStyles.txt")
 
 def separarHemisferios(YYYY, MM, DD):
+    #defino funcion para eliminar hemisferios espacios 
+    LIMITE_ESPACIADO_TIEMPO = 50/3600
+    def tieneEspaciadoTemporal(data_frame):
+        data_frame['espaciado_t'] = (data_frame['time'] - data_frame['time'].shift(1) >= LIMITE_ESPACIADO_TIEMPO)
+        if data_frame['espaciado_t'].any(): 
+            print(data_frame['espaciado_t'])
+            return False
+        else: 
+            return True 
 
     df, latitud = separarOrbitas(YYYY, MM, DD)
     
@@ -15,7 +26,8 @@ def separarHemisferios(YYYY, MM, DD):
 
     # Filtro filas donde la latitud es positivo
     df_latitud_positivas = df[(latitud[0]>0) | ((latitud[0]>-3500) & (df['posX'] > 1000))]
-    df_latitud_positivas_v2 = df[(latitud[0]>0)]
+
+    df_latitud_positivas = df_latitud_positivas.groupby('orbita').filter(tieneEspaciadoTemporal)
 
     return df_latitud_positivas
 

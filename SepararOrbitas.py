@@ -2,6 +2,7 @@ import pandas as pd
 import sys
 import matplotlib.pyplot as plt
 from AcomodarDatosB import acomodarDatos
+import numpy as np
 plt.style.use("./matplotlibStyles.txt")
 
 def separarOrbitas(YYYY, MM, DD):
@@ -15,7 +16,7 @@ def separarOrbitas(YYYY, MM, DD):
     # Filtro filas donde posX es positivo
     df_positivas = df[df['posX'] > 0]
     latitud_x_positivas = latitud[df['posX'] > 0]
-    df_orbitas_positivas = df_positivas.groupby('orbita').filter(lambda x: not x.empty)
+    df_orbitas_positivas = df_positivas.dropna()
     
     # Elimino la columna auxiliar 'cambio'
     df_orbitas_positivas = df_orbitas_positivas.drop(columns=['cambio'])
