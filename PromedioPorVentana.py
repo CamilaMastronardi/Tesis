@@ -25,19 +25,19 @@ def filtrarVentana(YYYY,MM,DD, orbita):
   data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
   data_orbita = data[data['orbita'] == orbita]
 
-  Bx_filtrado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
-  By_filtrado = data_orbita.By.rolling(10, center=True).mean().dropna()
-  Bz_filtrado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
+  Bx_promediado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
+  By_promediado = data_orbita.By.rolling(10, center=True).mean().dropna()
+  Bz_promediado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
   
-  B_vector_filtrado = np.array([Bx_filtrado, By_filtrado, Bz_filtrado]).transpose()
-  B_filtrado = np.zeros(len(B_vector_filtrado[:,0]))
-  for i in range(len(B_vector_filtrado[:,0])):
-      B_f = np.linalg.norm(B_vector_filtrado[i])
-      B_filtrado[i] = B_f
+  B_vector_promediado = np.array([Bx_promediado, By_promediado, Bz_promediado]).transpose()
+  B_promediado = np.zeros(len(B_vector_promediado[:,0]))
+  for i in range(len(B_vector_promediado[:,0])):
+      B_f = np.linalg.norm(B_vector_promediado[i])
+      B_promediado[i] = B_f
   
   # Eliminar NaNs
-  time_filtrado = data_orbita.time.rolling(10, center=True).mean().dropna()
-  r_sat_filtrado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
+  time_promediado = data_orbita.time.rolling(10, center=True).mean().dropna()
+  r_sat_promediado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
 
   Bx = data_orbita.Bx.dropna()
   By = data_orbita.By.dropna()
@@ -45,9 +45,9 @@ def filtrarVentana(YYYY,MM,DD, orbita):
   time = data_orbita.time.dropna()
   B = data_orbita.mod_B.dropna()
 
-  return pd.DataFrame({'time': time_filtrado, 'mod_B': B_filtrado, 
-                      'Bx': Bx_filtrado, 'By': By_filtrado, 
-                      'Bz': Bz_filtrado, 'r_sat': r_sat_filtrado})
+  return pd.DataFrame({'time': time_promediado, 'mod_B': B_promediado, 
+                      'Bx': Bx_promediado, 'By': By_promediado, 
+                      'Bz': Bz_promediado, 'r_sat': r_sat_promediado})
 
 
 #hago la función que hace el promedio por ventanas a cada coordenada del campo magnetico  
