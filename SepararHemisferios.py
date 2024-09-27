@@ -1,7 +1,6 @@
 import pandas as pd
 import sys
 import matplotlib.pyplot as plt
-from AcomodarDatosB import acomodarDatos
 from SepararOrbitas import separarOrbitas
 import numpy as np
 

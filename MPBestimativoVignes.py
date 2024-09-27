@@ -1,7 +1,6 @@
 import sys
 import os
 import numpy as np
-from AcomodarDatosB import acomodarDatos
 import pandas as pd
 import matplotlib.pyplot as plt
 from Filtros import lowpass_filter, highpass_filter 
@@ -10,7 +9,8 @@ plt.style.use("./matplotlibStyles.txt")
 
 def dataframeMPBAOjo(YYYY, MM, DD, orbita):
     df = filtrarVentana(YYYY, MM, DD, orbita)
-    B, Bx, By, Bz, t = df['mod_B'], df['Bx'], df['By'],df['Bz'], df['time']
+    B, Bx, By, Bz, t, x_sat, y_sat, z_sat = df['mod_B'], df['Bx'], df['By'], df['Bz'], df['time'], df['posX'], df['posY'], df['posZ']
+
 
     dBx = np.abs(np.gradient(Bx)) #np.gradient usa diferencias finitas centrada
     dBy = np.abs(np.gradient(By))
@@ -28,13 +28,16 @@ def dataframeMPBAOjo(YYYY, MM, DD, orbita):
     dB_pd_rolling = dB_pd.rolling(10, center=True).mean()
     deltaB = dB_pd.rolling(10, center=True).std().div(dB_pd_rolling)
 
-    return t, B, filtered_B, filtered_grad 
+    return pd.DataFrame({'time':t, 'mod_B':B, 'filteredB':filtered_B, 
+    'filteredGrad':filtered_grad, 'posX': x_sat, 'posY':y_sat,'posZ': z_sat})
 
 def MPBAOjo(YYYY, MM, DD):
     n = n_orbita(YYYY, MM, DD)
 
     for orbita in range(1,n+1):
-        t, B, filtered_B, filtered_grad = dataframeMPBAOjo(YYYY, MM, DD, orbita)
+        t, B, filtered_B, filtered_grad = dataframeMPBAOjo(YYYY, MM, DD, orbita)['time'], 
+        dataframeMPBAOjo(YYYY, MM, DD, orbita)['mod_B'], dataframeMPBAOjo(YYYY, MM, DD, orbita)['filteredB']
+        dataframeMPBAOjo(YYYY, MM, DD, orbita)['filteredGrad']
 
         fig, (ax1, ax2, ax3) = plt.subplots(3,1)
         ax1.set_title(f'{YYYY}-{MM}-{DD} orbita {orbita}')

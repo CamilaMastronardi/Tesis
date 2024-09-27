@@ -36,6 +36,9 @@ def filtrarVentana(YYYY,MM,DD, orbita):
   # Eliminar NaNs
   time_promediado = data_orbita.time.rolling(10, center=True).mean().dropna()
   r_sat_promediado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
+  x_sat = data_orbita.posX.rolling(10, center=True).mean().dropna()
+  y_sat = data_orbita.posY.rolling(10, center=True).mean().dropna()
+  z_sat = data_orbita.posZ.rolling(10, center=True).mean().dropna()
 
   Bx = data_orbita.Bx.dropna()
   By = data_orbita.By.dropna()
@@ -45,7 +48,8 @@ def filtrarVentana(YYYY,MM,DD, orbita):
 
   return pd.DataFrame({'time': time_promediado, 'mod_B': B_promediado, 
                       'Bx': Bx_promediado, 'By': By_promediado, 
-                      'Bz': Bz_promediado, 'r_sat': r_sat_promediado})
+                      'Bz': Bz_promediado, 'r_sat': r_sat_promediado, 'posX' : x_sat,
+                      'posY' : y_sat, 'posZ' : z_sat})
 
 
 #hago la función que hace el promedio por ventanas a cada coordenada del campo magnetico  
