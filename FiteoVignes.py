@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from MPBestimativoVignes import dataframeMPBAOjo
+import matplotlib.pyplot as plt
 
 dataframe = pd.read_csv(f'/app/data.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
 def posicionesCercanasEnTiempo(df, time):
@@ -26,14 +27,36 @@ for label, content in dataframe.iterrows():
     r_MPB.append([x_MPB, y_MPB, z_MPB])
     r_err.append([x_err, y_err, z_err])
 
+def polares(L, X0):
+    x, y, z = L[0], L[1], L[2] 
+    r = np.sqrt((x-X0)**2+z**2)
+    theta = np.arctan((x-X0)/z)
+    return r, theta
+
+radio_marte_prom = 3389.5
+X0 = -0.78*radio_marte_prom #esto lo saco del paper de Vignes
+epsilon = 0.9
+
+posicion = np.array([polares(i, X0) for i in r_MPB])
+
+r = posicion[:,0] #desde el foco
+theta = posicion[:,1]
 
 def rVignes(theta, L): #Importa los datos acomodados de campo magnetico y hace el ajuste
-    epsilon = 1
-    X0 = 1
-    return X0 + L/(1-epsilon*np.cos(theta))
+    return L*radio_marte_prom/(1+epsilon*np.cos(theta))
 
-#popt, pcov = curve_fit(r_MPB_estimativo['r'],r_MPB_estimativo['theta'], r_fiteoVignes) #hago un ajuste por cuadrados minimos
-#L = popt 
+popt, pcov = curve_fit(rVignes, theta, r, nan_policy='omit') #hago un ajuste por cuadrados minimos
+L = popt 
+print(L)
+
+theta_fit = np.linspace(-np.pi/2,np.pi/2, 1000)
+r_fit = rVignes(theta_fit, L)
+
+plt.plot(r, theta, 'o')
+plt.plot(r_fit, theta_fit)
+plt.xlabel('r(m)')
+plt.ylabel('theta')
+plt.savefig('pruebavignes.png')
 
 '''
 def intervaloVignes(r_MPB_estimativo):
