@@ -8,7 +8,10 @@ from MPBestimativoVignes import dataframeMPBAOjo
 dataframe = pd.read_csv(f'/app/data.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
 def posicionesCercanasEnTiempo(df, time):
     fila_cercana = df[((df.time - time).abs()) <= ((df.time - time).abs().min())]
-    return fila_cercana['posX'], fila_cercana['posY'], fila_cercana['posZ']
+    try:
+        return fila_cercana['posX'].iloc[0], fila_cercana['posY'].iloc[0], fila_cercana['posZ'].iloc[0]
+    except IndexError: #cuando fila_cercana analiza una fila vacia no se puede acceder a loc [0] y ocurre un indexerror
+        return np.nan, np.nan, np.nan
 
 r_MPB = []
 r_err = []
@@ -23,7 +26,6 @@ for label, content in dataframe.iterrows():
     r_MPB.append([x_MPB, y_MPB, z_MPB])
     r_err.append([x_err, y_err, z_err])
 
-print(r_MPB)
 
 def rVignes(theta, L): #Importa los datos acomodados de campo magnetico y hace el ajuste
     epsilon = 1
