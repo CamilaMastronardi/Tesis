@@ -3,8 +3,9 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
-from MPBestimativoVignes import dataframeMPBAOjo
+from PromedioPorVentana import filtrarVentana
 import matplotlib.pyplot as plt
+
 plt.style.use("./matplotlibStyles.txt")
 
 dataframe = pd.read_csv(f'/app/data.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
@@ -19,7 +20,7 @@ r_MPB = []
 r_err = []
 for label, content in dataframe.iterrows():
     year, month, day, orbita, time, delta_time = content['YYYY'], content['MM'], content['DD'], content['orbita'], content['MPB_time'], content['dt']
-    datos_para_analisis = dataframeMPBAOjo(year, month, day, int(orbita))
+    datos_para_analisis = filtrarVentana(year, month, day, int(orbita))
     x_MPB, y_MPB, z_MPB = posicionesCercanasEnTiempo(datos_para_analisis, time)
     x_min, y_min, z_min = posicionesCercanasEnTiempo(datos_para_analisis, time - delta_time)
     x_max, y_max, z_max = posicionesCercanasEnTiempo(datos_para_analisis, time + delta_time)
@@ -77,6 +78,8 @@ x_min = r_min*np.cos(theta_fit)
 z_max = r_max*np.sin(theta_fit)
 z_min = r_min*np.sin(theta_fit)
 
+'''
+Para plotear
 plt.plot(s, rho, 'o')
 plt.plot(x_fit,z_fit)
 plt.plot(x_max,z_max,'--', color='darkblue')
@@ -88,31 +91,24 @@ plt.ylim(min(z_min),max(z_max))
 plt.grid(True)
 
 plt.savefig('pruebavignes.png')
-
 '''
-
-def filtradoVignes(intervaloL, YYYY, MM, DD): 
-    def r_min(theta): 
-        Lmin = L-deltaL
-        return Lmin/(1-epsilon*np.cos(theta))
-    def r_max(theta): 
-        Lmax = L+deltaL
-        return L/(1-epsilon*np.cos(theta))
-    indice
-    for i in range(len(r_MPB_estimativo)): 
-        
+#defino funcion que se queda solo con datos entre el deltaL que defini
+def filtradoVignes(YYYY, MM, DD, orbita):
+    data = filtradoVignes(YYYY, MM, DD, orbita)
+    data_vignes = data[(x_min<data['posX']<x_max)]
+    return data_vignes
 
 if __name__== '__main__' :
 
-  if len(sys.argv) !=2: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python3 DescargaDatosB.py YYYY-MM-DD")
+  if len(sys.argv) !=3: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
+        print("Uso: python3 FiteoVignes.py YYYY-MM-DD n°orbira")
         sys.exit(1) #sale del programa
     # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
     
-  if len(sys.argv) == 2:
+  if len(sys.argv) == 3:
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
+    orbita = sys.argv[2]
   # Llama a la función para descargar datos de campo magnetico
-    descargarDatosCampo(YYYY,MM,DD)
+    filtradoVignes(YYYY,MM,DD,orbita)
     print('hecho')
-    '''

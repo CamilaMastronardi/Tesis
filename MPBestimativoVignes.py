@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from Filtros import lowpass_filter, highpass_filter 
 from PromedioPorVentana import filtrarVentana, n_orbita
+
 plt.style.use("./matplotlibStyles.txt")
 
 def dataframeMPBAOjo(YYYY, MM, DD, orbita):
