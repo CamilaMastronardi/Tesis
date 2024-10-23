@@ -3,8 +3,6 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from Filtros import lowpass_filter, highpass_filter 
-from PromedioPorVentana import filtrarVentana, n_orbita
 from CorteVignes import filtradoVignes
 
 plt.style.use("./matplotlibStyles.txt")
@@ -62,7 +60,7 @@ if __name__== '__main__' :
     
   if len(sys.argv) == 3:
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
-    orbita = sys.argv[2] #Usa el argumento indicado para ejecutar el programa
+    orbita = int(sys.argv[2]) #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
     graficoParaSepararCasos(YYYY, MM, DD, orbita)
   # Llama a la función para descargar datos de campo magnetico

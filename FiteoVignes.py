@@ -34,7 +34,7 @@ puedo utilizar (debido a la simetria de revolucion) solo las coordenadas
 rho y x. En otras palabras, puedo utilizar solo el radio de cilindricas rho
 y el angulo theta definido entre x y z. 
 '''
-def cilindricas(L, X0, rprom):
+def cilindricas(L, X0):
     x, y, z = L[0], L[1], L[2] 
     s = x + X0
     rho = np.sqrt(y**2+z**2)
@@ -72,11 +72,8 @@ z_fit = r_fit*np.sin(theta_fit)
 #Defino parametros para limites de datos
 deltaL = 10*L_err
 
-def rVignesmax(theta, L, deltaL): return rVignes(theta, L+deltaL)
-def rVignesmin(theta, L, deltaL): return rVignes(theta, L-deltaL)
-
-r_min = rVignesmin(theta_fit, L, deltaL)
-r_max = rVignesmax(theta_fit, L, deltaL)
+r_min = rVignes(theta_fit, L-deltaL)
+r_max = rVignes(theta_fit, L+deltaL)
 x_max = r_max*np.cos(theta_fit)
 x_min = r_min*np.cos(theta_fit)
 z_max = r_max*np.sin(theta_fit)
