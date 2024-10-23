@@ -64,19 +64,33 @@ L = popt[0]
 L_err = np.sqrt(np.diag(pcov))[0]
 print(f'{L}+-{L_err}')
 
-theta_fit = np.linspace(0,max(theta), 500)
+theta_fit = np.linspace(0,max(theta), 50000)
 r_fit = rVignes(theta_fit, L)
 x_fit = r_fit*np.cos(theta_fit)
 z_fit = r_fit*np.sin(theta_fit)
 
 #Defino parametros para limites de datos
 deltaL = 10*L_err
-r_max = rVignes(theta_fit, L+deltaL)
-r_min = rVignes(theta_fit, L-deltaL)
+
+def rVignesmax(theta, L, deltaL): return rVignes(theta, L+deltaL)
+def rVignesmin(theta, L, deltaL): return rVignes(theta, L-deltaL)
+
+r_min = rVignesmin(theta_fit, L, deltaL)
+r_max = rVignesmax(theta_fit, L, deltaL)
 x_max = r_max*np.cos(theta_fit)
 x_min = r_min*np.cos(theta_fit)
 z_max = r_max*np.sin(theta_fit)
 z_min = r_min*np.sin(theta_fit)
+
+PathDataVignes = '/app/LVignes'
+
+if not os.path.exists(PathDataVignes):
+    os.makedirs(PathDataVignes)
+    
+archivoDestino = os.path.join(PathDataVignes, f"L_vignes")
+
+with open(archivoDestino, "wb") as archivo:
+    np.save(archivo, np.array([L, deltaL]))
 
 '''
 Para plotear
@@ -92,23 +106,3 @@ plt.grid(True)
 
 plt.savefig('pruebavignes.png')
 '''
-#defino funcion que se queda solo con datos entre el deltaL que defini
-def filtradoVignes(YYYY, MM, DD, orbita):
-    data = filtradoVignes(YYYY, MM, DD, orbita)
-    data_vignes = data[(x_min<data['posX']<x_max)]
-    return data_vignes
-
-if __name__== '__main__' :
-
-  if len(sys.argv) !=3: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python3 FiteoVignes.py YYYY-MM-DD n°orbira")
-        sys.exit(1) #sale del programa
-    # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
-    
-  if len(sys.argv) == 3:
-    fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
-    YYYY, MM, DD = fecha.split('-')
-    orbita = sys.argv[2]
-  # Llama a la función para descargar datos de campo magnetico
-    filtradoVignes(YYYY,MM,DD,orbita)
-    print('hecho')
