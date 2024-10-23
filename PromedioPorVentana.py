@@ -22,11 +22,11 @@ def n_orbita(YYYY, MM, DD):
 def filtrarVentana(YYYY,MM,DD, orbita):
   data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
   data_orbita = data[data['orbita'] == orbita]
-
+  
   Bx_promediado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
   By_promediado = data_orbita.By.rolling(10, center=True).mean().dropna()
   Bz_promediado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
-  
+
   B_vector_promediado = np.array([Bx_promediado, By_promediado, Bz_promediado]).transpose()
   B_promediado = np.zeros(len(B_vector_promediado[:,0]))
   for i in range(len(B_vector_promediado[:,0])):

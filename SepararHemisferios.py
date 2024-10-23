@@ -12,7 +12,6 @@ def separarHemisferios(YYYY, MM, DD):
     def tieneEspaciadoTemporal(data_frame):
         data_frame['espaciado_t'] = (data_frame['time'] - data_frame['time'].shift(1) >= LIMITE_ESPACIADO_TIEMPO)
         if data_frame['espaciado_t'].any(): 
-            print(data_frame['espaciado_t'])
             return False
         else: 
             return True 
