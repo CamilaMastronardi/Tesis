@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from PromedioPorVentana import filtrarVentana
 import matplotlib.pyplot as plt
-#from FiteoVignes import rVignesmax, rVignesmin, cilindricas
 
 #defino datos que necesito para sacar la posicion angular
 radio_marte_prom = 3389.5
@@ -20,9 +19,8 @@ def cilindricas(L, X0):
     s = x + X0
     rho = np.sqrt(y**2+z**2)
     r = np.sqrt(rho**2+s**2)
-    #phi = np.arctan(y/z)
     theta = np.arccos(s/r) 
-    return rho ,s, r, theta
+    return theta
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
 def filtradoVignes(YYYY, MM, DD, orbita):
@@ -34,7 +32,7 @@ def filtradoVignes(YYYY, MM, DD, orbita):
 
     data = filtrarVentana(YYYY, MM, DD, orbita).reset_index() #le hago un reset index porque por el tratamiento a los datos los indices estaban mal
     posX, posY, posZ = data['posX'], data['posY'], data['posZ']
-    theta = cilindricas([posX,posY,posZ], X0)[3]
+    theta = cilindricas([posX,posY,posZ], X0)
 
     for (angulo,i) in zip(theta,range(len(theta))): 
         r_max = rVignes(angulo,L+10*deltaL)
@@ -45,9 +43,10 @@ def filtradoVignes(YYYY, MM, DD, orbita):
         if posX.iloc[i] > x_max or posX.iloc[i] < x_min: 
             data = data.drop(i)
             print(f'se elimino columna {i}')
-            print(posX.iloc[i], x_max, x_min)
         else: 
             continue
+
+    return data
 
 if __name__== '__main__' :
 
