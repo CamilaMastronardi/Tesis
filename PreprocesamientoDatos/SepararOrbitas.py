@@ -8,7 +8,7 @@ plt.style.use("./matplotlibStyles.txt")
 def separarOrbitas(YYYY, MM, DD):
 
     df = acomodarDatos(YYYY, MM, DD)
-    latitud = pd.read_csv(f'/app/datos_campo_magnetico_crudos_pc/z_{DD}-{MM}-{YYYY}_pc.csv', header=None, lineterminator='\n')[:-1]
+    latitud = pd.read_csv(f'/app/DatosCrudos/datos_campo_magnetico_crudos_pc/z_{DD}-{MM}-{YYYY}_pc.csv', header=None, lineterminator='\n')[:-1]
     # Identifico cambios de signo en posX
     df['cambio'] = (df['posX'] > 0) & (df['posX'].shift(1) <= 0)
     df['orbita'] = df['cambio'].cumsum() # Creo columna para las órbitas 

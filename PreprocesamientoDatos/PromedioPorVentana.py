@@ -55,7 +55,7 @@ def filtrarVentana(YYYY,MM,DD, orbita):
 #hago la función que hace el promedio por ventanas a cada coordenada del campo magnetico  
 def guardarTodasLasOrbitasFiltradas(YYYY,MM,DD):
 
-  Path = f'/app/datos_campo_magnetico_ventana'
+  Path = f'/app/DatosCrudos/datos_campo_magnetico_ventana'
   if not os.path.exists(Path):
     os.makedirs(Path)
 
@@ -70,7 +70,7 @@ def guardarTodasLasOrbitasFiltradas(YYYY,MM,DD):
 # Ploteos
 def graficadora(YYYY, MM, DD):
 
-  Path = f'/app/datos_campo_magnetico_ventana'
+  Path = f'/app/DatosCrudos/datos_campo_magnetico_ventana'
   n = n_orbita(YYYY, MM, DD)
   for orbita in range(1, n+1):
     archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
@@ -97,10 +97,10 @@ def graficadora(YYYY, MM, DD):
     ax4.set_ylabel('altura [Km]')
     ax3.grid()
     
-    PathFig = '/app/datos_campo_magnetico_ventana/Ploteos'
+    PathFig = '/app/DatosCrudos/datos_campo_magnetico_ventana/Ploteos'
     if not os.path.exists(PathFig):
       os.makedirs(PathFig)
-    plt.savefig(f'/app/datos_campo_magnetico_ventana/Ploteos/{YYYY}_{MM}_{DD}_ventana_{orbita}')
+    plt.savefig(f'/app/DatosCrudos/datos_campo_magnetico_ventana/Ploteos/{YYYY}_{MM}_{DD}_ventana_{orbita}')
 
 if __name__== '__main__' :
 

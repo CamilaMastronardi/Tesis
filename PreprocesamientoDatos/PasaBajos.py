@@ -47,7 +47,7 @@ def pasaBajos(YYYY, MM, DD): # Diseño del filtro pasa bajos
             B_f = np.linalg.norm(filtered_B_vector[i])
             filtered_B[i] = B_f
 
-        Path = f'/app/datos_campo_magnetico_pasabajos'
+        Path = f'/app/DatosCrudos/datos_campo_magnetico_pasabajos'
         if not os.path.exists(Path):
             os.makedirs(Path)
 
@@ -70,7 +70,7 @@ def pasaBajos(YYYY, MM, DD): # Diseño del filtro pasa bajos
 
 
 def graficadora(DD, MM, YYYY, n_orbitas):
-  Path = f'/app/datos_campo_magnetico_pasabajos'
+  Path = f'/app/DatosCrudos/datos_campo_magnetico_pasabajos'
   data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
   for orbita in range(1, n_orbitas+1):
     archivoDestino = os.path.join(Path, f"pasabajos_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
@@ -80,7 +80,7 @@ def graficadora(DD, MM, YYYY, n_orbitas):
     df = pd.read_csv(archivoDestino)
     t, B, Bx, By, Bz, fft, fft_filtered, freq = df.time, df.mod_B, df.Bx, df.By, df.Bz, df.fft, df.fft_filtered, df.freq
     
-    PathFig = '/app/datos_campo_magnetico_pasabajos/Ploteos'
+    PathFig = '/app/DatosCrudos/datos_campo_magnetico_pasabajos/Ploteos'
     if not os.path.exists(PathFig):
       os.makedirs(PathFig)
 
@@ -93,7 +93,7 @@ def graficadora(DD, MM, YYYY, n_orbitas):
     ax1.set_ylabel('power')
     plt.legend()
     ax1.grid()
-    plt.savefig(f'/app/datos_campo_magnetico_pasabajos/Ploteos/{YYYY}_{MM}_{DD}_transformada_{orbita}')
+    plt.savefig(f'/app/DatosCrudos/datos_campo_magnetico_pasabajos/Ploteos/{YYYY}_{MM}_{DD}_transformada_{orbita}')
     
     fig, (ax1, ax3) = plt.subplots(2, 1, figsize=(20, 14))
     ax1.set_title(f'{DD}-{MM}-{YYYY}')
@@ -116,7 +116,7 @@ def graficadora(DD, MM, YYYY, n_orbitas):
     ax4.set_ylabel('altura [Km]')
     ax3.grid()
 
-    plt.savefig(f'/app/datos_campo_magnetico_pasabajos/Ploteos/{YYYY}_{MM}_{DD}_pasabajos_{orbita}')
+    plt.savefig(f'/app/DatosCrudos/datos_campo_magnetico_pasabajos/Ploteos/{YYYY}_{MM}_{DD}_pasabajos_{orbita}')
 
 
 if __name__== '__main__' :

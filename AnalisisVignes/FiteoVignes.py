@@ -3,12 +3,12 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
-from PromedioPorVentana import filtrarVentana
+from PreprocesamientoDatos.PromedioPorVentana import filtrarVentana
 import matplotlib.pyplot as plt
 
 plt.style.use("./matplotlibStyles.txt")
 
-dataframe = pd.read_csv(f'/app/data.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
+dataframe = pd.read_csv(f'/app/AnalisisVignes/data.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
 def posicionesCercanasEnTiempo(df, time):
     fila_cercana = df[((df.time - time).abs()) <= ((df.time - time).abs().min())]
     try:
@@ -79,7 +79,7 @@ x_min = r_min*np.cos(theta_fit)
 z_max = r_max*np.sin(theta_fit)
 z_min = r_min*np.sin(theta_fit)
 
-PathDataVignes = '/app/LVignes'
+PathDataVignes = '/app/AnalisisVignes/LVignes'
 
 if not os.path.exists(PathDataVignes):
     os.makedirs(PathDataVignes)

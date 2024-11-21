@@ -33,8 +33,8 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
     lines_pc = response_pc.text.splitlines()
 
 #Creo carpeta para la bajada de los datos
-    datosCampoPath = '/app/datos_campo_magnetico_crudos'
-    datosCampoPath_pc = '/app/datos_campo_magnetico_crudos_pc'
+    datosCampoPath = '/app/DatosCrudos/datos_campo_magnetico_crudos'
+    datosCampoPath_pc = '/app/DatosCrudos/datos_campo_magnetico_crudos_pc'
     if not os.path.exists(datosCampoPath):
       os.makedirs(datosCampoPath)
     if not os.path.exists(datosCampoPath_pc):

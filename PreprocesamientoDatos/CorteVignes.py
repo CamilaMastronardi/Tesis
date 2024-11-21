@@ -24,7 +24,7 @@ def cilindricas(L, X0):
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
 def filtradoVignes(YYYY, MM, DD, orbita):
-    PathDataVignes = '/app/LVignes'
+    PathDataVignes = '/app/AnalisisVignes/LVignes'
     archivo = os.path.join(PathDataVignes, f"L_vignes")
     
     with open(archivo, 'rb') as archivo:

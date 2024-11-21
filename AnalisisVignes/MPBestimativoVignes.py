@@ -3,8 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from Filtros import lowpass_filter, highpass_filter 
-from PromedioPorVentana import filtrarVentana, n_orbita
+from PreprocesamientoDatos.Filtros import lowpass_filter, highpass_filter 
+from PreprocesamientoDatos.PromedioPorVentana import filtrarVentana, n_orbita
 
 plt.style.use("./matplotlibStyles.txt")
 
@@ -52,7 +52,7 @@ def MPBAOjo(YYYY, MM, DD):
         ax3.set_xlabel('time (hs)')
         ax3.set_ylabel('|B| (nT)')
 
-        PathFig = '/app/fig_MPB_a_ojo'
+        PathFig = '/app/AnalisisVignes/fig_MPB_a_ojo'
         if not os.path.exists(PathFig):
             os.makedirs(PathFig)
         plt.savefig(os.path.join(PathFig, f'{YYYY}-{MM}-{DD}_orbita_{orbita}.jpg'))
@@ -60,7 +60,7 @@ def MPBAOjo(YYYY, MM, DD):
 if __name__== '__main__' :
 
   if len(sys.argv) !=2: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python3 PromedioPorVentana.py YYYY-MM-DD")
+        print("Uso: python3 MPBestimativoVignes.py YYYY-MM-DD")
         sys.exit(1) #sale del programa
     # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
     

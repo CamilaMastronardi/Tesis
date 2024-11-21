@@ -15,7 +15,7 @@ chmod +x start_docker.sh
 
 ### 3. Ejecutar la descarga de datos
 ```
-python3 DescargaDatosB.py 2014-12-25
+python3 PreprocesamientoDatos/DescargaDatosB.py 2014-12-25
 ```
 Se puede reemplazar por otro año-mes-día o pueden colocarse dos fechas para descargar datos en ese periodo (YYYY_i-MM_i-DD_i YYYY_f-MM_f-DD_f). 
 
@@ -23,7 +23,7 @@ Esta linea descarga los datos en coordenadas Solar System (ss) de la pagina de M
  
 ### 4. Ejecutar pre-procesamiento de los datos
 ```
-python3 OrbitasParaAutoencoder.py 2014-12-25 1
+python3 PreprocesamientoDatos/OrbitasParaAutoencoder.py 2014-12-25 1
 ```
 Se puede reemplazar por otro año-mes-día nº de orbita. 
 
