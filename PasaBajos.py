@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Filtros import butter_lowpass, lowpass_filter
 from scipy import fftpack
-from AcomodarDatosB import acomodarDatos
 from SepararHemisferios import separarHemisferios
 import sys
 import os
