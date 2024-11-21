@@ -18,7 +18,7 @@ def guardadoDataframeAutoencoder(YYYY, MM, DD, orbita):
     archivoDestino = os.path.join(PathDataAutoencoder, f"Autoencoder_{DD}-{MM}-{YYYY}_{orbita}.csv")
     
     with open(archivoDestino, "w") as archivo:
-        archivo.write(df)
+        df.to_csv(archivo)
 
     return df
 
@@ -27,13 +27,13 @@ def graficoParaSepararCasos(YYYY, MM, DD, orbita):
     df = guardadoDataframeAutoencoder(YYYY, MM, DD, orbita)
     B, Bx, By, Bz, t, posX, posY, posZ = df['mod_B'], df['Bx'], df['By'], df['Bz'], df['time'], df['posX'], df['posY'], df['posZ']
     
-    fig, (ax1, ax2, ax3) = plt.subplots(3,1)
+    fig, (ax1, ax2) = plt.subplots(2,1)
     ax1.set_title(f'{YYYY}-{MM}-{DD} orbita {orbita}')
-    ax1.plot(t, B)
-    ax1_twin = plt.twiny(ax1)
-    ax1_twin.plot(t, posX)
-    ax1_twin.plot(t, posY)
-    ax1_twin.plot(t, posZ)
+    ax1.plot(t, B, label = 'Modulo B')
+    ax1_twin = plt.twinx(ax1)
+    ax1_twin.plot(t, posX, label='posición x')
+    ax1_twin.plot(t, posY, label='posición y')
+    ax1_twin.plot(t, posZ, label='posición z')
     ax1.set_xlabel('time (hs)')
     ax1.set_ylabel('B (nT)')
     ax1_twin.set_ylabel('posición (m)')
@@ -43,6 +43,10 @@ def graficoParaSepararCasos(YYYY, MM, DD, orbita):
     ax2.plot(t, Bz, label = '$B_z$')
     ax2.set_xlabel('time (hs)')
     ax2.set_ylabel('$campo magnetico$ (nT)')
+
+    ax1.legend()
+    ax1_twin.legend()
+    ax2.legend()
     
     PathFig = '/app/Autoencoder/FigurasParaSepararCasos'
 
