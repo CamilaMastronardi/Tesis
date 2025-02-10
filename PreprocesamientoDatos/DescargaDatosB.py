@@ -11,13 +11,22 @@ import requests
 from datetime import datetime
 from datetime import timedelta
 
-def day_of_year(DD, MM, YYYY):
+DATOS_CAMPO_PATH = '/app/DatosCrudos/datos_campo_magnetico_crudos'
+DATOS_CAMPO_PATH_PC = '/app/DatosCrudos/datos_campo_magnetico_crudos_pc'
+
+def day_of_year(DD: int, MM: int, YYYY: int):
     date = datetime(YYYY, MM, DD)
     day_of_year = date.timetuple().tm_yday
     return f"{day_of_year:03d}"
 
-def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
+def data_is_downloaded(YYYY: str, MM: str, DD: str):
+    file = os.path.join(DATOS_CAMPO_PATH, f"datos_{DD}-{MM}-{YYYY}.csv")
+    return os.path.exists(file)
 
+def descargarDatosCampo(YYYY: str,MM: str,DD: str): #Define la URL segun la fecha ingresada
+    if data_is_downloaded(YYYY, MM, DD):
+      return
+      
     DOY = str(day_of_year(int(DD), int(MM), int(YYYY)))
     url = f"https://lasp.colorado.edu/maven/sdc/public/data/sci/mag/l2/{YYYY}/{MM}/mvn_mag_l2_{YYYY}{DOY}ss1s_{YYYY}{MM}{DD}_v01_r01.sts" 
     url_pc = f"https://lasp.colorado.edu/maven/sdc/public/data/sci/mag/l2/{YYYY}/{MM}/mvn_mag_l2_{YYYY}{DOY}pc1s_{YYYY}{MM}{DD}_v01_r01.sts" 
@@ -33,16 +42,14 @@ def descargarDatosCampo(YYYY,MM,DD): #Define la URL segun la fecha ingresada
     lines_pc = response_pc.text.splitlines()
 
 #Creo carpeta para la bajada de los datos
-    datosCampoPath = '/app/DatosCrudos/datos_campo_magnetico_crudos'
-    datosCampoPath_pc = '/app/DatosCrudos/datos_campo_magnetico_crudos_pc'
-    if not os.path.exists(datosCampoPath):
-      os.makedirs(datosCampoPath)
-    if not os.path.exists(datosCampoPath_pc):
-      os.makedirs(datosCampoPath_pc)
+    if not os.path.exists(DATOS_CAMPO_PATH):
+      os.makedirs(DATOS_CAMPO_PATH)
+    if not os.path.exists(DATOS_CAMPO_PATH_PC):
+      os.makedirs(DATOS_CAMPO_PATH_PC)
 
 #Crea u archivo para meter los datos que salen de la API
-    archivoDestino = os.path.join(datosCampoPath, f"datos_{DD}-{MM}-{YYYY}.csv")
-    archivoDestino_pc = os.path.join(datosCampoPath_pc, f"z_{DD}-{MM}-{YYYY}_pc.csv")
+    archivoDestino = os.path.join(DATOS_CAMPO_PATH, f"datos_{DD}-{MM}-{YYYY}.csv")
+    archivoDestino_pc = os.path.join(DATOS_CAMPO_PATH_PC, f"z_{DD}-{MM}-{YYYY}_pc.csv")
     
 #por ultimo escribe en el archivo lo que sale de la API
     with open(archivoDestino, "w") as archivo:
