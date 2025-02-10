@@ -12,10 +12,10 @@ from PreprocesamientoDatos.CorteVignes import filtradoVignes
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
 df = cargarTrainingData(group='Group1')
-i = 0
+i = 1
 for YYYY, MM, DD in zip(df.YYYY, df. MM, df.DD):
-    orbitas = n_orbita(YYYY, MM, DD)
-    for n in range(1, orbitas+1): 
+    orbitas = int(n_orbita(YYYY, MM, DD))
+    for n in range(1, orbitas): 
         filtradoVignes(YYYY, MM, DD, n)
     print(f'fecha {i} de {len(df)}')
     i = i + 1

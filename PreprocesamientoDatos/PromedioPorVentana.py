@@ -17,8 +17,26 @@ import csv
 plt.style.use("./matplotlibStyles.txt")
 
 def n_orbita(YYYY, MM, DD):
-  data = separarOrbitas(YYYY, MM, DD)[0]
-  return max(data['orbita'])
+  cache_dir = os.path.join(os.path.dirname(__file__),'cache/') 
+  path = os.path.join(cache_dir, f'numero_de_orbitas.csv')
+  if not os.path.exists(path):
+    os.makedirs(cache_dir, exist_ok=True)
+    data_init = {'YYYY': 'YYYY', 'MM': 'MM', 'DD': 'DD', 'n_orbita': 'n_orbita'}
+    df_init = pd.DataFrame(data_init, index=[0])
+    df_init.to_csv(path, index=False)
+
+  df = pd.read_csv(path)
+  repetidos = df.loc[(df['YYYY'] == YYYY) & (df['MM']==MM) & (df['DD']==DD)]
+  if len(repetidos)==0:
+    data = separarOrbitas(YYYY, MM, DD)[0]
+    n_orbita = max(data['orbita'])
+    new_row = pd.DataFrame({'YYYY': YYYY, 'MM':MM, 'DD': DD, 'n_orbita': n_orbita}, index=[0])
+    df = pd.concat([df, new_row])
+    df.to_csv(path, index=False)
+    return new_row['n_orbita']
+  else: 
+    return repetidos['n_orbita']
+
 
 def filtrarVentana(YYYY,MM,DD, orbita):
   data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
