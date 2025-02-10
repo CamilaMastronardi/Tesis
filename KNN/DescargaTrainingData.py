@@ -2,9 +2,9 @@ import pandas as pd
 import os
 import sys
 root_dir = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(root_dir)
+sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
 
-from PreprocesamientoDatos.DescargaDatosB import descargarDatosCampo
+from DescargaDatosB import descargarDatosCampo
 
 def cargarTrainingData(group: str): #group es el nombre de la pestaña de datos de gabi que quiera usar
 
