@@ -23,9 +23,9 @@ def cilindricas(L, X0):
     return theta
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
-def filtradoVignes(YYYY, MM, DD, orbita):
+def _filtradoVignes(YYYY, MM, DD, orbita):
     PathDataVignes = '/app/AnalisisVignes/LVignes'
-    archivo = os.path.join(PathDataVignes, f"L_vignes")
+    archivo = os.path.join(PathDataVignes, "L_vignes")
     
     with open(archivo, 'rb') as archivo:
         L, deltaL = np.load(archivo)
@@ -42,11 +42,23 @@ def filtradoVignes(YYYY, MM, DD, orbita):
 
         if posX.iloc[i] > x_max or posX.iloc[i] < x_min: 
             data = data.drop(i)
-            print(f'se elimino columna {i}')
         else: 
             continue
 
     return data
+
+def filtradoVignes(YYYY, MM, DD, orbita):
+    
+    CorteVignes_cache = os.path.join(os.path.dirname(__file__),'cache/CorteVignes') 
+    path = os.path.join(CorteVignes_cache, f'{YYYY}_{MM}_{DD}-{orbita}.csv')
+    if os.path.exists(path):
+        df = pd.read_csv(path)
+        return df
+    else: 
+        os.makedirs(CorteVignes_cache, exist_ok=True)
+        df = _filtradoVignes(YYYY, MM, DD, orbita)
+        df.to_csv(path)
+        return df
 
 if __name__== '__main__' :
 
