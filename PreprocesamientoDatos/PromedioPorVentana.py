@@ -8,6 +8,7 @@ Created on Mon Jun 24 09:18:51 2024
 import numpy as np
 from matplotlib import pyplot as plt
 from SepararHemisferios import separarHemisferios
+from SepararOrbitas import separarOrbitas
 import pandas as pd
 import sys
 import os
@@ -16,7 +17,7 @@ import csv
 plt.style.use("./matplotlibStyles.txt")
 
 def n_orbita(YYYY, MM, DD):
-  data = separarHemisferios(YYYY, MM, DD)
+  data = separarOrbitas(YYYY, MM, DD)[0]
   return max(data['orbita'])
 
 def filtrarVentana(YYYY,MM,DD, orbita):
