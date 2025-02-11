@@ -11,10 +11,10 @@ X0 = -0.78*radio_marte_prom #esto lo saco del paper de Vignes
 epsilon = 0.9 #valor en vignes
 
 #Necesito definir estas funciones de nuevo porque para importarlas se ejecuta todo el codigo de FiteoVignes desde cero. 
-def rVignes(theta, L): 
+def rVignes(theta: float, L: float) -> float: 
     return L*radio_marte_prom/(1+epsilon*np.cos(theta))
 
-def cilindricas(L, X0):
+def cilindricas(L: list, X0: float):
     x, y, z = L[0], L[1], L[2] 
     s = x + X0
     rho = np.sqrt(y**2+z**2)
@@ -23,7 +23,7 @@ def cilindricas(L, X0):
     return theta
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
-def _filtradoVignes(YYYY, MM, DD, orbita):
+def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int) -> pd.DataFrame:
     PathDataVignes = '/app/AnalisisVignes/LVignes'
     archivo = os.path.join(PathDataVignes, "L_vignes")
     
@@ -35,8 +35,8 @@ def _filtradoVignes(YYYY, MM, DD, orbita):
     theta = cilindricas([posX,posY,posZ], X0)
 
     for (angulo,i) in zip(theta,range(len(theta))): 
-        r_max = rVignes(angulo,L+10*deltaL)
-        r_min = rVignes(angulo,L-10*deltaL)
+        r_max = rVignes(angulo,L+band_size*deltaL)
+        r_min = rVignes(angulo,L-band_size*deltaL)
         x_max = r_max*np.cos(angulo)
         x_min = r_min*np.cos(angulo)
 
@@ -47,16 +47,16 @@ def _filtradoVignes(YYYY, MM, DD, orbita):
 
     return data
 
-def filtradoVignes(YYYY, MM, DD, orbita):
+def filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, use_cache=True, band_size = 20):
     
     CorteVignes_cache = os.path.join(os.path.dirname(__file__),'cache/CorteVignes') 
-    path = os.path.join(CorteVignes_cache, f'{YYYY}_{MM}_{DD}-{orbita}.csv')
-    if os.path.exists(path):
+    path = os.path.join(CorteVignes_cache, f'{YYYY}_{MM}_{DD}-{orbita}-bs={band_size}.csv')
+    if use_cache and os.path.exists(path):
         df = pd.read_csv(path)
         return df
     else: 
         os.makedirs(CorteVignes_cache, exist_ok=True)
-        df = _filtradoVignes(YYYY, MM, DD, orbita)
+        df = _filtradoVignes(YYYY, MM, DD, orbita, band_size)
         df.to_csv(path)
         return df
 
@@ -72,5 +72,5 @@ if __name__== '__main__' :
     YYYY, MM, DD = fecha.split('-')
     orbita = int(sys.argv[2])
   # Llama a la función para descargar datos de campo magnetico
-    filtradoVignes(YYYY,MM,DD,orbita)
-    print('hecho')
+    df = filtradoVignes(YYYY, MM, DD, int(orbita), use_cache=False)
+    print(df)

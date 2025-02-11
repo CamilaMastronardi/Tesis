@@ -39,3 +39,4 @@ if __name__ == '__main__':
         fecha = sys.argv[1]  # Usa el argumento indicado para ejecutar el programa
         YYYY, MM, DD = fecha.split('-')
         df_latitud_positivas = separarHemisferios(YYYY, MM, DD)
+        print(df_latitud_positivas)

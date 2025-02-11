@@ -38,9 +38,9 @@ def n_orbita(YYYY: str, MM: str, DD: str) -> int:
     return int(repetidos['n_orbita'].iloc[0])
 
 
-def filtrarVentana(YYYY,MM,DD, orbita):
+def filtrarVentana(YYYY: str,MM: str, DD: str, orbita: int):
   data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
-  data_orbita = data[data['orbita'] == orbita]
+  data_orbita = data.loc[(data['orbita'] == orbita)]
   
   Bx_promediado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
   By_promediado = data_orbita.By.rolling(10, center=True).mean().dropna()
@@ -64,7 +64,6 @@ def filtrarVentana(YYYY,MM,DD, orbita):
   Bz = data_orbita.Bz.dropna()
   time = data_orbita.time.dropna()
   B = data_orbita.mod_B.dropna()
-
   return pd.DataFrame({'time': time_promediado, 'mod_B': B_promediado, 
                       'Bx': Bx_promediado, 'By': By_promediado, 
                       'Bz': Bz_promediado, 'r_sat': r_sat_promediado, 'posX' : x_sat,
@@ -116,22 +115,21 @@ def graficadora(YYYY, MM, DD):
     ax4.set_ylabel('altura [Km]')
     ax3.grid()
     
-    PathFig = '/app/DatosCrudos/datos_campo_magnetico_ventana/Ploteos'
+    PathFig = '/app/temp'
     if not os.path.exists(PathFig):
       os.makedirs(PathFig)
-    plt.savefig(f'/app/DatosCrudos/datos_campo_magnetico_ventana/Ploteos/{YYYY}_{MM}_{DD}_ventana_{orbita}')
+    plt.savefig(f'/app/temp/PromedioPorVentana/{YYYY}_{MM}_{DD}_ventana_{orbita}')
 
 if __name__== '__main__' :
 
-  if len(sys.argv) !=2: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python3 PromedioPorVentana.py YYYY-MM-DD")
+  if len(sys.argv) !=3: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
+        print("Uso: python3 PromedioPorVentana.py YYYY-MM-DD orbita")
         sys.exit(1) #sale del programa
     # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
     
-  if len(sys.argv) == 2:
+  if len(sys.argv) == 3:
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
-    guardarTodasLasOrbitasFiltradas(YYYY, MM, DD)
-    graficadora(YYYY, MM, DD)
-  # Llama a la función para descargar datos de campo magnetico
-    print('hecho')  
+    orbita = sys.argv[2]
+    df = filtrarVentana(YYYY, MM, DD, int(orbita))
+    print(df)  
