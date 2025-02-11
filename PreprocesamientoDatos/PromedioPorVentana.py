@@ -16,7 +16,7 @@ import csv
 
 plt.style.use("./matplotlibStyles.txt")
 
-def n_orbita(YYYY, MM, DD):
+def n_orbita(YYYY: str, MM: str, DD: str) -> int:
   cache_dir = os.path.join(os.path.dirname(__file__),'cache/') 
   path = os.path.join(cache_dir, f'numero_de_orbitas.csv')
   if not os.path.exists(path):
@@ -33,9 +33,9 @@ def n_orbita(YYYY, MM, DD):
     new_row = pd.DataFrame({'YYYY': YYYY, 'MM':MM, 'DD': DD, 'n_orbita': n_orbita}, index=[0])
     df = pd.concat([df, new_row])
     df.to_csv(path, index=False)
-    return new_row['n_orbita']
+    return int(new_row['n_orbita'].iloc[0])
   else: 
-    return repetidos['n_orbita']
+    return int(repetidos['n_orbita'].iloc[0])
 
 
 def filtrarVentana(YYYY,MM,DD, orbita):
