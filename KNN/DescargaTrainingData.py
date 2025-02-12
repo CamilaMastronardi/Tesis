@@ -10,10 +10,10 @@ def cargarTrainingData(group: str): #group es el nombre de la pestaña de datos 
 
     path = f'/app/MAVEN_MPB_Data_{group}.csv'
     col_names = ['date','MPB_time']
-    df = pd.read_csv(path, skiprows=1, header=None, sep=',' ,lineterminator='\n', usecols=[0,2])
+    df = pd.read_csv(path, skiprows=1, header=None, sep=',' ,lineterminator='\n', usecols=[0,2]).dropna()
     df.columns = col_names
     dates = df.date.str.split('-')
-
+    
     df.MPB_time = df.MPB_time.str.split(':').apply(lambda t: int(t[0])+int(t[1])/60+int(t[2])/3600)
 
     for date in dates:
