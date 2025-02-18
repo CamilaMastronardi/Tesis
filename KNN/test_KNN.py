@@ -1,0 +1,32 @@
+from KNN import KNN_timeSeries
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+
+def test_clase_KNN_usa_los_vecinos_mas_cercanos():
+    X_toy = np.random.random((100,10))
+    y_toy = np.random.randint(0,2, (100))
+    X_toy_train, X_toy_test, y_toy_train, y_toy_test = train_test_split(X_toy, y_toy, test_size=0.33, random_state=42)
+
+    val_1, val_2, val_3 = y_toy_train[1], y_toy_train[2], y_toy_train[3]
+    if val_1 == val_2 or val_1 == val_3:
+        expected = val_1
+    else:
+        expected = val_2
+
+    class distance_for_KNN_test(object):
+        
+        def dist_matrix(X_test, X_train): 
+            M = np.ones([len(X_test), len(X_train)])*np.inf
+            M[:,3] = 0
+            M[:,2] = 1
+            M[:,1] = 1
+            return M
+ 
+
+    KNN = KNN_timeSeries(distance_for_KNN_test, n_neighbors= 2)
+    KNN.fit(X_toy_train, y_toy_train)
+    y_pred_labels, y_pred_probas = KNN.predict(X_toy_test)
+    assert (y_pred_labels == expected * np.ones(len(y_pred_labels))).all()
+
+test_clase_KNN_usa_los_vecinos_mas_cercanos()

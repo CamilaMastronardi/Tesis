@@ -225,19 +225,5 @@ class KNN_timeSeries(object):
 
         return mode_label.ravel(), mode_proba.ravel()
 
-##### ----- PRUEBA DE FUNCIONAMIENTO PARA KNN -----
-
-X_toy = np.random.random((100,10))
-y_toy = np.random.randint(0,2, (100))
-X_toy_train, X_toy_test, y_toy_train, y_toy_test = train_test_split(X_toy, y_toy, test_size=0.33, random_state=42)
-
 dtw_calculator = DTW()
 
-def distance_for_KNN_test(X_test, X_train):
-    for x_test in X_test:
-        for x_train in X_train: 
-            
-
-KNN = KNN_timeSeries(dtw_calculator)
-KNN.fit(X_toy_train, y_toy_train)
-y_pred = KNN.predict(X_toy_test)
