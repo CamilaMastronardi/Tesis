@@ -219,3 +219,11 @@ class KNN_timeSeries(object):
         return mode_label.ravel(), mode_proba.ravel()
 
 dtw_calculator = DTW()
+KNN = KNN_timeSeries(metric_calculator = dtw_calculator)
+
+X_toy = np.random.random((100,10))
+y_toy = np.random.randint(0,2, (100))
+X_toy_train, X_toy_test, y_toy_train, y_toy_test = train_test_split(X_toy, y_toy, test_size=0.33, random_state=42)
+
+KNN.fit(X_toy_train, y_toy_train)
+s = time.time()
