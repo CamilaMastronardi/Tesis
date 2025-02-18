@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from typing import Callable, Any, Iterable
 
+import numba
+from numba import njit, prange
+
+from scipy.spatial.distance import squareform
 import collections
 import itertools
 from scipy.stats import mode
@@ -58,61 +62,77 @@ print(f"Tiempo de ejecución: {execution_time:.2f} segundos")
 X = data_KNN_completed['B'].tolist()
 y = data_KNN_completed['tipo']
 
+@njit
+def euclidean(x, y):
+    return abs(x - y)
+
+@njit
+def squared_metric(x, y):
+    return (x - y) ** 2
+
+metrics = {
+    "euclidean": euclidean,
+    "squared": squared_metric
+}
+
+@njit
+def similarity(ts_a: Iterable[float], ts_b: Iterable[float], max_warping_window: int, metric: callable) -> float:
+    """Returns the DTW similarity distance between two 2-D
+    timeseries numpy arrays.
+
+    Arguments
+    ---------
+    time_series_a, time_series_b : Iterable of shape n_timepoints
+        Two arrays containing n_samples of timeseries data
+    
+    d : DistanceMetric object (default = euclidean)
+    
+    Returns
+    -------
+    DTW distance between A and B
+    """
+    M, N = len(ts_a), len(ts_b)
+    cost = np.full((M, N), np.inf)
+    cost[0, 0] = metric(ts_a[0], ts_b[0])
+    
+    for i in range(1, M):
+        cost[i, 0] = cost[i-1, 0] + metric(ts_a[i], ts_b[0])
+    
+    for j in range(1, N):
+        cost[0, j] = cost[0, j-1] + metric(ts_a[0], ts_b[j])
+    
+    for i in range(1, M):
+        for j in range(max(1, i - max_warping_window), min(N, i + max_warping_window)):
+            cost[i, j] = min(cost[i-1, j-1], cost[i, j-1], cost[i-1, j]) + metric(ts_a[i], ts_b[j])
+    
+    return cost[-1, -1]
 
 class DTW(object):
     """ Calculates the matrix of Dynamic Time Warping between two Iterables
     
     Arguments
     ---------
-    X: 
-
+    max_warping_window :  int, optional (default = infinity)
+        Maximum warping window allowed by the DTW dynamic
+        programming function          
+    subsample_step : int, optional (default = 1)
+        Step size for the timeseries array. By setting subsample_step = 2,
+        the timeseries length will be reduced by 50% because every second
+        item is skipped. Implemented by x[:, ::subsample_step]
+    metric: metric to calculate distance matrix 
     """
 
-    def __init__(self, max_warping_window: int = 10000, metric: callable = lambda x,y: abs(x-y), subsample_step: int = 1):
+    def __init__(self, max_warping_window: int = 10000, subsample_step: int = 1, metric: str = "euclidean"):
         self.max_warping_window = max_warping_window
-        self.metric = metric
         self.subsample_step = subsample_step
+        self.metric = metrics[metric]
 
     def dtw_distance(self, time_series_a: Iterable[float], time_series_b: Iterable[float]) -> float:
-        """Returns the DTW similarity distance between two 2-D
-        timeseries numpy arrays.
-
-        Arguments
-        ---------
-        time_series_a, time_series_b : Iterable of shape n_timepoints
-            Two arrays containing n_samples of timeseries data
-        
-        d : DistanceMetric object (default = euclidean)
-        
-        Returns
-        -------
-        DTW distance between A and B
-        """
-
-        # Create cost matrix via broadcasting with large int
-        ts_a, ts_b = np.array(time_series_a), np.array(time_series_b)
-        M, N = len(ts_a), len(ts_b)
-        cost = np.inf * np.ones((M, N))
-
-        # Initialize the first row and column
-        cost[0, 0] = self.metric(ts_a[0], ts_b[0])
-        for i in range(1, M):
-            cost[i, 0] = cost[i-1, 0] + self.metric(ts_a[i], ts_b[0])
-
-        for j in range(1, N):
-            cost[0, j] = cost[0, j-1] + self.metric(ts_a[0], ts_b[j])
-
-        # Populate rest of cost matrix within window
-        for i in range(1, M):
-            for j in range(max(1, i - self.max_warping_window),
-                            min(N, i + self.max_warping_window)):
-                choices = cost[i - 1, j - 1], cost[i, j-1], cost[i-1, j]
-                cost[i, j] = min(choices) + self.metric(ts_a[i], ts_b[j])
-
-        # Return DTW distance given window 
-        return cost[-1, -1]
+        ts_a = np.array(time_series_a)[::self.subsample_step]
+        ts_b = np.array(time_series_b)[::self.subsample_step]
+        return similarity(ts_a, ts_b, self.max_warping_window, self.metric)
     
-    def dist_matrix(self, X_test: Iterable[Iterable[float]], X_train: Iterable[Iterable[float]]):
+    def dist_matrix(self, X_test: Iterable[Iterable[float]], X_train: Iterable[Iterable[float]]) -> np.array:
         """Computes the M x N distance matrix between the training
         dataset and testing dataset using the DTW distance measure
         
@@ -127,35 +147,13 @@ class DTW(object):
         Distance matrix between each item of x and y with
             shape [training_n_samples, testing_n_samples]
         """
-        
-        # Compute the distance matrix        
-        # Compute condensed distance matrix (upper triangle) of pairwise dtw distances
-        # when X_train and X_test are the same array
-        if(np.array_equal(X_test, X_train)):
-            x_s = np.shape(X_test)
-            dm = np.zeros((x_s[0] * (x_s[0] - 1)) // 2, dtype=np.double)
-            
-            for i in range(0, x_s[0] - 1):
-                for j in range(i + 1, x_s[0]):
-                    dm[dm_count] = self.dtw_distance(X_test[i, ::self.subsample_step],
-                                                      X_train[j, ::self.subsample_step])
-
-            dm = squareform(dm)
-            return dm
-        
-        # Compute full distance matrix of dtw distnces if X_train and X_test are differents arrays
-        else:
-            x_s = np.shape(X_test)
-            y_s = np.shape(X_train)
-            dm = np.zeros((x_s[0], y_s[0])) 
-            dm_size = x_s[0]*y_s[0]
-        
-            for i in range(0, x_s[0]):
-                for j in range(0, y_s[0]):
-                    dm[i, j] = self.dtw_distance(X_test[i, ::self.subsample_step],
-                                                  X_train[j, ::self.subsample_step])
-        
-            return dm
+        X_test, X_train = list(X_test), list(X_train)
+        x_s, y_s = len(X_test), len(X_train)
+        dm = np.zeros((x_s, y_s))
+        for i in prange(x_s):
+            for j in prange(y_s):
+                dm[i, j] = self.dtw_distance(X_test[i], X_train[j])
+        return dm
 
 
 class KNN_timeSeries(object):
@@ -168,11 +166,6 @@ class KNN_timeSeries(object):
         
     metric_calculator: str, optional (default= 'dtw') 
             Metric for measure distances between series
-            
-    subsample_step : int, optional (default = 1)
-        Step size for the timeseries array. By setting subsample_step = 2,
-        the timeseries length will be reduced by 50% because every second
-        item is skipped. Implemented by x[:, ::subsample_step]
     """
     
     def __init__(self, metric_calculator, n_neighbors: int =5):
@@ -226,4 +219,3 @@ class KNN_timeSeries(object):
         return mode_label.ravel(), mode_proba.ravel()
 
 dtw_calculator = DTW()
-
