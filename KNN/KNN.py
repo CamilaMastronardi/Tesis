@@ -6,11 +6,11 @@ import time
 import matplotlib.pyplot as plt 
 from tqdm import tqdm
 
-from scipy.spatial import distance
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
+from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
+import sktime
 
 from DescargaTrainingData import cargarTrainingData
 
@@ -20,6 +20,13 @@ sys.path.append(root_dir)
 from PreprocesamientoDatos.CorteVignes import filtradoVignes 
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
+def add_index(los_B: pd.Series) -> list[tuple[np.array, np.array]] :
+    """
+    Input: los_B es un pd.Series de arrays de valores
+    Output: Una lista de tuplas de arrays (valores, indices)
+    """
+    return list([(np.array(range(len(val))), val) for val in los_B]) 
+    
 def is_mpb_orbit(orbit_df: pd.DataFrame, mpb_times: pd.DataFrame, delta_sec: int) -> bool:
     has_mpb = False
     for time in mpb_times:
@@ -55,32 +62,16 @@ execution_time = end_time - start_time
 print(f"Tiempo de ejecución: {execution_time:.2f} segundos")
 
 #toy dataset 
-X = data_KNN_completed['B']
+X = data_KNN_completed['B'].apply(lambda x: pd.DataFrame(x)).tolist()
 y = data_KNN_completed['tipo']
 
+print(type(X))
+print(type(y))
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+#sktime.datatypes.check_raise(X_train, 'df-list')
 
-#custom metric
-def DTW(a, b):   
-    an = a.size
-    bn = b.size
-    pointwise_distance = distance.cdist(a.reshape(-1,1),b.reshape(-1,1))
-    cumdist = np.matrix(np.ones((an+1,bn+1)) * np.inf)
-    cumdist[0,0] = 0
-
-    for ai in range(an):
-        for bi in range(bn):
-            minimum_cost = np.min([cumdist[ai, bi+1],
-                                   cumdist[ai+1, bi],
-                                   cumdist[ai, bi]])
-            cumdist[ai+1, bi+1] = pointwise_distance[ai,bi] + minimum_cost
-
-    return cumdist[an, bn]
-
-parameters = {'n_neighbors':[2, 4, 8]}
-clf = GridSearchCV(KNeighborsClassifier(metric=DTW), parameters, cv=3, verbose=1)
+clf = KNeighborsTimeSeriesClassifier(n_neighbors=1, distance='dtw')
+from sktime.registry import all_estimators
+print(all_estimators(filter_tags={'capability:unequal_length':True},estimator_types='classifier'))
 clf.fit(X_train, y_train)
-
-#evaluate
-y_pred = clf.predict(X_test)
-print(classification_report(y_test, y_pred))

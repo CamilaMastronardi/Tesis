@@ -7,6 +7,8 @@ idna==3.7
 joblib==1.4.2
 kiwisolver==1.4.5
 matplotlib==3.9.1
+mypy==1.15.0
+mypy-extensions==1.0.0
 numpy==2.0.1
 packaging==24.1
 pandas==2.2.2
@@ -15,11 +17,15 @@ pyparsing==3.1.2
 python-dateutil==2.9.0.post0
 pytz==2024.1
 requests==2.32.3
+scikit-base==0.12.0
 scikit-learn==1.6.1
 scipy==1.14.0
 setuptools==72.1.0
 six==1.16.0
+sktime==0.36.0
 threadpoolctl==3.5.0
+tqdm==4.67.1
+typing_extensions==4.12.2
 tzdata==2024.1
 urllib3==2.2.2
 wheel==0.44.0
