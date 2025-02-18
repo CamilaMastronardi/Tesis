@@ -74,8 +74,21 @@ def test_KNN_with_DTW(X, y):
 
     return y_pred, y_test
 
-X = digits.data
-y = digits.target
+x = np.linspace(0,100, 1000)
+x2 = np.linspace(0,101, 1010)
+f_1 = 10*np.cos(x)
+f_2 = 10*np.cos(x2) + np.random.normal(0, 1, 1010)
+f_3 = 10*np.cos(x) +  np.random.normal(0, 0.1, 1000)
+f_4 = 10*np.sin(x)
+f_5 = 10*np.cos(x)
+f_6 = 10*np.cos(x2) + np.random.normal(0, 1, 1010)
+f_7 = 9*np.cos(x) +  np.random.normal(0, 0.1, 1000)
+f_8 = 10*np.sin(x)+  np.random.normal(0, 0.1, 1000)
+f_9 = 2 + np.sin(x)
+f_10 = 2 + np.cos(x)
 
-#test_KNN_with_DTW(X, y)
+X = [f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8]
+y = [1, 0, 0, 1, 0, 0, 0, 1, 0, 0]
+
+test_KNN_with_DTW(X, y)
 

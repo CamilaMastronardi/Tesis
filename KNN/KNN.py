@@ -3,7 +3,8 @@ import pandas as pd
 import os
 import sys
 import time
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import seaborn as sn
 from tqdm import tqdm
 from typing import Callable, Any, Iterable
 
@@ -16,6 +17,7 @@ import itertools
 from scipy.stats import mode
 from scipy.spatial.distance import squareform
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 from DescargaTrainingData import cargarTrainingData
 
@@ -58,9 +60,7 @@ end_time = time.time()
 execution_time = end_time - start_time
 
 print(f"Tiempo de ejecución: {execution_time:.2f} segundos")
- 
-X = data_KNN_completed['B'].tolist()
-y = data_KNN_completed['tipo']
+
 
 @njit
 def euclidean(x, y):
@@ -221,9 +221,19 @@ class KNN_timeSeries(object):
 dtw_calculator = DTW()
 KNN = KNN_timeSeries(metric_calculator = dtw_calculator)
 
-X_toy = np.random.random((100,10))
-y_toy = np.random.randint(0,2, (100))
-X_toy_train, X_toy_test, y_toy_train, y_toy_test = train_test_split(X_toy, y_toy, test_size=0.33, random_state=42)
+X = data_KNN_completed['B']
+y = data_KNN_completed['tipo']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-KNN.fit(X_toy_train, y_toy_train)
+KNN.fit(X_train, y_train)
 s = time.time()
+y_pred, y_prob = KNN.predict(X_test)
+print(f'Tiempo de ejecución de KNN: {time.time()-s}')
+
+cm = confusion_matrix(y_test, y_pred)
+    
+plt.figure(figsize=(7,5))
+sn.heatmap(cm, annot=True)
+plt.xlabel('Predicted')
+plt.ylabel('Truth')
+plt.savefig('temp.png')
