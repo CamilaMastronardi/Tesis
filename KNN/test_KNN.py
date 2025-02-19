@@ -59,8 +59,8 @@ def test_clase_DTW():
 #print(M)
 
 def test_KNN_with_DTW(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=4)
-    KNN = KNN_timeSeries(metric_calculator = DTW(), n_neighbors=3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=4)
+    KNN = KNN_timeSeries(metric_calculator = DTW(), n_neighbors=2)
     KNN.fit(X_train, y_train)
 
     y_pred, y_prob = KNN.predict(X_test)
@@ -74,21 +74,23 @@ def test_KNN_with_DTW(X, y):
 
     return y_pred, y_test
 
-x = np.linspace(0,100, 1000)
-x2 = np.linspace(0,101, 1010)
-f_1 = 10*np.cos(x)
-f_2 = 10*np.cos(x2) + np.random.normal(0, 1, 1010)
-f_3 = 10*np.cos(x) +  np.random.normal(0, 0.1, 1000)
-f_4 = 10*np.sin(x)
-f_5 = 10*np.cos(x)
-f_6 = 10*np.cos(x2) + np.random.normal(0, 1, 1010)
-f_7 = 9*np.cos(x) +  np.random.normal(0, 0.1, 1000)
-f_8 = 10*np.sin(x)+  np.random.normal(0, 0.1, 1000)
-f_9 = 2 + np.sin(x)
-f_10 = 2 + np.cos(x)
+def test_KNN_with_DTW_works_with_pandas_series():
+    x = np.linspace(0,100, 1000)
+    x2 = np.linspace(0,101, 1010)
+    f_1 = 10*np.cos(x)
+    f_2 = 10*np.cos(x2) + np.random.normal(0, 1, 1010)
+    f_3 = 10*np.cos(x) +  np.random.normal(0, 0.1, 1000)
+    f_4 = 10*np.sin(x)
+    f_5 = 10*np.cos(x)
+    f_6 = 10*np.cos(x2) + np.random.normal(0, 1, 1010)
+    f_7 = 9*np.cos(x) +  np.random.normal(0, 0.1, 1000)
+    f_8 = 10*np.sin(x)+  np.random.normal(0, 0.1, 1000)
+    f_9 = 2 + np.sin(x)
+    f_10 = 2 + np.cos(x)
 
-X = [f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8]
-y = [1, 0, 0, 1, 0, 0, 0, 1, 0, 0]
+    X = pd.Series([f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8, f_9, f_10])
+    y = np.array([1, 0, 0, 1, 0, 0, 0, 1, 0, 0])
 
-test_KNN_with_DTW(X, y)
+    test_KNN_with_DTW(X, y)
 
+test_KNN_with_DTW_works_with_pandas_series()
