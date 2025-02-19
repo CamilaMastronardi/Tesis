@@ -37,24 +37,26 @@ def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFr
     data.loc[j, ["Fecha", "orbita", "tipo", "B"]] = [
         f"{YYYY}-{MM}-{DD}",
         orbita,
-        is_MPB_orbit,
+        int(is_MPB_orbit),
         df["mod_B"].to_numpy(), 
     ]
     return data
 
 start_time = time.time()
 
-MPB_crosses_df = cargarTrainingData(group='Group1')
+MPB_crosses_df = cargarTrainingData(group='Group4')
 data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
 
 for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
     orbitas = n_orbita(YYYY, MM, DD)
     for n in range(1, orbitas): 
         df_not_marked = filtradoVignes(YYYY, MM, DD, n)
-        time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
-        is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
-        data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
-        data_KNN_completed = data_to_complete
+        if len(df_not_marked)!=0:
+            time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
+            is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
+            data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
+            data_KNN_completed = data_to_complete
+
 # Calcular tiempo total de ejecución
 end_time = time.time()
 execution_time = end_time - start_time
@@ -212,28 +214,32 @@ class KNN_timeSeries(object):
         knn_labels = self.y_train[knn_idx]
         
         # Model Label
-        mode_data = mode(knn_labels, axis=1)
+        mode_data = mode(np.array(knn_labels), axis=1)
         mode_label = mode_data[0]
         mode_proba = mode_data[1]/self.n_neighbors
 
         return mode_label.ravel(), mode_proba.ravel()
 
-dtw_calculator = DTW()
-KNN = KNN_timeSeries(metric_calculator = dtw_calculator)
+if __name__== '__main__' :
+    dtw_calculator = DTW()
+    KNN = KNN_timeSeries(metric_calculator = dtw_calculator)
 
-X = data_KNN_completed['B']
-y = data_KNN_completed['tipo']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+    X = data_KNN_completed['B']
+    y = data_KNN_completed['tipo'].to_numpy()
 
-KNN.fit(X_train, y_train)
-s = time.time()
-y_pred, y_prob = KNN.predict(X_test)
-print(f'Tiempo de ejecución de KNN: {time.time()-s}')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+    y_test = y_test.astype('int')
+    y_train = y_train.astype('int')
 
-cm = confusion_matrix(y_test, y_pred)
-    
-plt.figure(figsize=(7,5))
-sn.heatmap(cm, annot=True)
-plt.xlabel('Predicted')
-plt.ylabel('Truth')
-plt.savefig('temp.png')
+    KNN.fit(X_train, y_train)
+    s = time.time()
+    y_pred, y_prob = KNN.predict(X_test)
+    print(f'Tiempo de ejecución de KNN: {time.time()-s}')
+
+    cm = confusion_matrix(y_test, y_pred)
+        
+    plt.figure(figsize=(7,5))
+    sn.heatmap(cm, annot=True)
+    plt.xlabel('Predicted')
+    plt.ylabel('Truth')
+    plt.savefig('temp.png')
