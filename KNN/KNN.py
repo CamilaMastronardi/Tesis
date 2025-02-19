@@ -44,7 +44,7 @@ def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFr
 
 start_time = time.time()
 
-MPB_crosses_df = cargarTrainingData(group='Group4')
+MPB_crosses_df = cargarTrainingData(groups=['Group1', 'Group2', 'Group3', 'Group4'])
 data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
 
 for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
