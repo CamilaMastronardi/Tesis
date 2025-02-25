@@ -150,11 +150,12 @@ class DTW(object):
             shape [training_n_samples, testing_n_samples]
         """
         X_test, X_train = list(X_test), list(X_train)
-        x_s, y_s = len(X_test), len(X_train)
+        x_s, y_s = len(X_test), len(X_train) 
         dm = np.zeros((x_s, y_s))
         for i in prange(x_s):
             for j in prange(y_s):
                 dm[i, j] = self.dtw_distance(X_test[i], X_train[j])
+                print(f'Parametro {y_s*i+j} de {y_s*x_s} DTW')
         return dm
 
 
@@ -221,7 +222,7 @@ class KNN_timeSeries(object):
         return mode_label.ravel(), mode_proba.ravel()
 
 if __name__== '__main__' :
-    dtw_calculator = DTW()
+    dtw_calculator = DTW(max_warping_window = 310)
     KNN = KNN_timeSeries(metric_calculator = dtw_calculator)
 
     X = data_KNN_completed['B']
@@ -234,6 +235,7 @@ if __name__== '__main__' :
     KNN.fit(X_train, y_train)
     s = time.time()
     y_pred, y_prob = KNN.predict(X_test)
+
     print(f'Tiempo de ejecución de KNN: {time.time()-s}')
 
     cm = confusion_matrix(y_test, y_pred)
