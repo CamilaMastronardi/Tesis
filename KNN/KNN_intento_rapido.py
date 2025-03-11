@@ -1,24 +1,31 @@
+#Librerias para manejo de datos
 import numpy as np
 import pandas as pd
 import os
 import sys
-import time
+
+#Librerias para etiquetado de datos
+from typing import Callable, Any, Iterable
+import collections
+
+#Librerias para graficar
 import matplotlib.pyplot as plt
 import seaborn as sn
-from tqdm import tqdm
-from typing import Callable, Any, Iterable
 
+#Librerias para medicion de tiempos
+import time
+from tqdm import tqdm
+
+#Librerias para acelerar la performance
 import numba
 from numba import njit, prange
 
-from scipy.spatial.distance import squareform
-import collections
-import itertools
-from scipy.stats import mode
-from scipy.spatial.distance import squareform
+# Librerias para KNN
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
+#Funciones de otros codigos que tengo que traer
 from DescargaTrainingData import cargarTrainingData
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
@@ -44,7 +51,7 @@ def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFr
 
 start_time = time.time()
 
-MPB_crosses_df = cargarTrainingData(groups=['Group1','Group2','Group3','Group4'])
+MPB_crosses_df = cargarTrainingData(groups=['Group1', 'Group2', 'Group3', 'Group4'])
 data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
 
 for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
@@ -158,74 +165,11 @@ class DTW(object):
                 print(f'Parametro {y_s*i+j} de {y_s*x_s} DTW')
         return dm
 
-
-class KNN_timeSeries(object):
-    """K-nearest neighbor classifier using an indicated metric for series
-    
-    Arguments
-    ---------
-    n_neighbors : int, optional (default = 5)
-        Number of neighbors to use by default for KNN
-        
-    metric_calculator: str, optional (default= 'dtw') 
-            Metric for measure distances between series
-    """
-    
-    def __init__(self, metric_calculator, n_neighbors: int =5):
-        self.n_neighbors = n_neighbors
-        self.metric_calculator = metric_calculator
-    
-    def fit(self, X_train: Iterable[Iterable[float]], y_train: Iterable[bool]):
-        """Fit the model using X as training data and y as class labels
-        
-        Arguments
-        ---------
-        X_train : Iterable of shape [n_samples, n_timepoints]
-            Training data set for input into KNN classifer
-            
-        y_train : Iterable of shape [n_samples]
-            Training labels for input into KNN classifier
-        """
-        
-        self.X_train = X_train
-        self.y_train = y_train
-        
-    def predict(self, X: Iterable[Iterable[float]]) -> list[np.array, np.array]:
-        """Predict the class labels or probability estimates for 
-        the provided data
-
-        Arguments
-        ---------
-          X : Iterable of shape [n_samples, n_timepoints]
-              Array containing the testing data set to be classified
-          
-        Returns
-        -------
-          2 arrays representing:
-              (1) the predicted class labels 
-              (2) the knn label count probability
-        """
-        
-        dm = self.metric_calculator.dist_matrix(X, self.X_train)
-
-        # Identify the k nearest neighbors
-        knn_idx = dm.argsort()[:, :self.n_neighbors]
-
-        # Identify k nearest labels
-        knn_labels = self.y_train[knn_idx]
-        
-        # Model Label
-        mode_data = mode(np.array(knn_labels), axis=1)
-        mode_label = mode_data[0]
-        mode_proba = mode_data[1]/self.n_neighbors
-
-        return mode_label.ravel(), mode_proba.ravel()
-
 if __name__== '__main__' :
-    mww = 1000
+    mww = 500
     K = 2
-    dtw_calculator = DTW(max_warping_window = mww)
-    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K)
+    dtw_calculator = DTW(max_warping_window = mww).dtw_distance
+    KNN = KNeighborsClassifier(metric = dtw_calculator, n_neighbors = K)
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy()
@@ -242,9 +186,9 @@ if __name__== '__main__' :
 
     with open(path_file, 'w') as file: 
         file.write(f'Tiempo de ejecución de KNN: {time.time()-s} \n')
-        file.write(f'y_pred, y_truth, y_prob \n')
-        for val1, val2 in zip(y_pred, y_prob):
-            file.write(f'{val1}, {val2} \n')
+        file.write(f'y_pred, y_prob \n')
+        for val1, val2 in zip(y_pred,y_prob):
+            file.write(val1, val2 + f'\n')
 
     cm = confusion_matrix(y_test, y_pred)
         
