@@ -1,33 +1,61 @@
+# Librerias basicas para manejo de datos
 import numpy as np
 import pandas as pd
 import os
 import sys
-import time
+
+# Librerias para graficar
 import matplotlib.pyplot as plt
 import seaborn as sn
+
+#Librerias para medición de tiempos
 from tqdm import tqdm
+import time
+
+# Libreria para etiquetar inputs y outputs de funciones
 from typing import Callable, Any, Iterable
 
+# Libreria para acelerar loops
 import numba
 from numba import njit, prange
 
+# Librerias para DTW
 from scipy.spatial.distance import squareform
 import collections
 import itertools
 from scipy.stats import mode
 from scipy.spatial.distance import squareform
+
+# Funciones para estadistica
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-
-from DescargaTrainingData import cargarTrainingData
+from sklearn.model_selection import cross_validate
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
 
+# Funciones de otros archivos
+from DescargaTrainingData import cargarTrainingData
 from PreprocesamientoDatos.CorteVignes import filtradoVignes 
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
     
 def is_mpb_orbit(orbit_df: pd.DataFrame, mpb_times: pd.DataFrame, delta_sec: int) -> bool:
+    """
+    Returns True if the orbit has the time corresponded to a mpb crossing and 
+    False in othe other case. 
+
+    Arguments
+    ---------
+    orbit_df: time serie to be classified
+    
+    mpb_times: list of times of mpb crosses
+
+    delta_sec: interval of seconds to look for the crossing
+
+    Returns
+    -------
+    DTW distance between A and B
+    """
     has_mpb = False
     for time in mpb_times:
         has_mpb = has_mpb or (abs(orbit_df["time"] - time) < (delta_sec / 3600)).any()
@@ -220,36 +248,23 @@ class KNN_timeSeries(object):
         mode_proba = mode_data[1]/self.n_neighbors
 
         return mode_label.ravel(), mode_proba.ravel()
-
+    
+    def score(self, X, y, sample_weight = None):
+        return super().score(X, y, sample_weight)
+     
 if __name__== '__main__' :
-    mww = 1000
-    K = 2
-    dtw_calculator = DTW(max_warping_window = mww)
-    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K)
+    mww = 1
+    K = 1
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy()
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-    y_test = y_test.astype('int')
-    y_train = y_train.astype('int')
-
-    KNN.fit(X_train, y_train)
+    dtw_calculator = DTW(max_warping_window = mww)
+    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K)
+    
     s = time.time()
-    y_pred, y_prob = KNN.predict(X_test)
 
-    path_file = f'/app/KNN/Resultados/{K}vecinos_{mww}mww_DTW_without_tree.txt'
-
-    with open(path_file, 'w') as file: 
-        file.write(f'Tiempo de ejecución de KNN: {time.time()-s} \n')
-        file.write(f'y_pred, y_truth, y_prob \n')
-        for val1, val2 in zip(y_pred, y_prob):
-            file.write(f'{val1}, {val2} \n')
-
-    cm = confusion_matrix(y_test, y_pred)
-        
-    plt.figure(figsize=(7,5))
-    sn.heatmap(cm, annot=True)
-    plt.xlabel('Predicted')
-    plt.ylabel('Truth')
-    plt.savefig(f'/app/KNN/Resultados/{K}vecinos_{mww}mww_DTW_without_tree.png')
+    cv_results = cross_validate(KNN, X, y, cv=5)
+    
+    path_file = f'/app/KNN/Resultados/{K}vecinos_{mww}mww_DTW_CV.csv'
+    cv_results.to_csv() 
