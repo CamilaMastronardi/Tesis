@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+import pickle
 
 # Librerias para graficar
 import matplotlib.pyplot as plt
@@ -29,6 +30,8 @@ from scipy.spatial.distance import squareform
 # Funciones para estadistica
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import cross_validate
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import cross_validate
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
@@ -187,7 +190,7 @@ class DTW(object):
         return dm
 
 
-class KNN_timeSeries(object):
+class KNN_timeSeries(BaseEstimator, ClassifierMixin):
     """K-nearest neighbor classifier using an indicated metric for series
     
     Arguments
@@ -249,12 +252,18 @@ class KNN_timeSeries(object):
 
         return mode_label.ravel(), mode_proba.ravel()
     
-    def score(self, X, y, sample_weight = None):
-        return super().score(X, y, sample_weight)
-     
+        def get_params(self, deep=True):
+            return {"n_neighbors": self.n_neighbors, "metric_calculator": self.metric_calculator}
+
+        def set_params(self, **params):
+            for param, value in params.items():
+                setattr(self, param, value)
+            return self
+
+
 if __name__== '__main__' :
-    mww = 1
-    K = 1
+    mww = 1000
+    K = 2
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy()
@@ -265,6 +274,9 @@ if __name__== '__main__' :
     s = time.time()
 
     cv_results = cross_validate(KNN, X, y, cv=5)
+    print(cv_results)
+    print(time.time()-s)
     
-    path_file = f'/app/KNN/Resultados/{K}vecinos_{mww}mww_DTW_CV.csv'
-    cv_results.to_csv() 
+    path_file = f'/app/KNN/Resultados/test_{K}vecinos_{mww}mww_DTW_CV.pkl'
+    with open(path_file, 'wb') as file:
+        pickle.dump(cv_results, file)
