@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import os
 import sys
-import pickle
 
 # Librerias para graficar
 import matplotlib.pyplot as plt
@@ -24,15 +23,14 @@ from numba import njit, prange
 from scipy.spatial.distance import squareform
 import collections
 import itertools
-from scipy.stats import mode
-from scipy.spatial.distance import squareform
 
 # Funciones para estadistica
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import cross_validate
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import cross_validate
+from sklearn.model_selection import ShuffleSplit
+from scipy.stats import mode
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
@@ -186,7 +184,6 @@ class DTW(object):
         for i in prange(x_s):
             for j in prange(y_s):
                 dm[i, j] = self.dtw_distance(X_test[i], X_train[j])
-                print(f'Parametro {y_s*i+j} de {y_s*x_s} DTW')
         return dm
 
 
@@ -244,13 +241,12 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
 
         # Identify k nearest labels
         knn_labels = self.y_train[knn_idx]
-        
-        # Model Label
-        mode_data = mode(np.array(knn_labels), axis=1)
-        mode_label = mode_data[0]
-        mode_proba = mode_data[1]/self.n_neighbors
 
-        return mode_label.ravel(), mode_proba.ravel()
+        # Model Label
+        mode_label = mode(knn_labels, axis = 1)[0]
+        mode_proba = mode(knn_labels, axis = 1)[1]/self.n_neighbors
+
+        return mode_label, mode_proba
     
         def get_params(self, deep=True):
             return {"n_neighbors": self.n_neighbors, "metric_calculator": self.metric_calculator}
@@ -260,23 +256,34 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
                 setattr(self, param, value)
             return self
 
-
 if __name__== '__main__' :
     mww = 1000
     K = 2
 
     X = data_KNN_completed['B']
-    y = data_KNN_completed['tipo'].to_numpy()
+    y = data_KNN_completed['tipo'].to_numpy().astype(int)
+
+    shuf = ShuffleSplit(n_splits=5, test_size=0.2, random_state= 50)
 
     dtw_calculator = DTW(max_warping_window = mww)
     KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K)
     
     s = time.time()
 
-    cv_results = cross_validate(KNN, X, y, cv=5)
-    print(cv_results)
-    print(time.time()-s)
+    for i, (train_index, test_index) in enumerate(shuf.split(X, y)):
+        
+        X_train = X[train_index]
+        y_train = y[train_index]
+        X_test = X[test_index]
+        y_test = y[test_index]
+
+        KNN.fit(X_train, y_train)
+        y_pred, y_prob = KNN.predict(X_test)
     
-    path_file = f'/app/KNN/Resultados/test_{K}vecinos_{mww}mww_DTW_CV.pkl'
-    with open(path_file, 'wb') as file:
-        pickle.dump(cv_results, file)
+        print(f'{i+1} de 5 finalizado/s, {round((time.time()-s)/60,2)} minutos')
+
+        result = pd.DataFrame({'X_test': np.array(X_test), 'y_real': y_test, 
+        'y_pred': y_pred, 'y_prob': y_prob})
+    
+        path_file = f'/app/KNN/Resultados/CV_{K}vecinos_{mww}DTW_{i}.csv'
+        result.to_csv(path_file)
