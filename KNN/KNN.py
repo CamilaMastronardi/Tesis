@@ -258,7 +258,7 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
 
 if __name__== '__main__' :
     mww = 1000
-    K = 2
+    K = 3
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy().astype(int)
