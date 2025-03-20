@@ -11,7 +11,7 @@ def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de
     date_tot = pd.DataFrame(columns = ['YYYY', 'MM', 'DD', 'MPB_time'])
     tot_drop = 0
     for group in groups:
-        path = f'/app/MAVEN_MPB_Data_{group}.csv'
+        path = f'/app/Training_Data/MAVEN_MPB_Data_{group}.csv'
         col_names = ['date','MPB_time']
         df = pd.read_csv(path, skiprows=1, header=None, sep=',' ,lineterminator='\n', usecols=[0,2]).dropna()
         df.columns = col_names

@@ -258,7 +258,7 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
 
 if __name__== '__main__' :
     mww = 1000
-    K = 3
+    K = 4
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy().astype(int)
@@ -285,5 +285,5 @@ if __name__== '__main__' :
         result = pd.DataFrame({'X_test': np.array(X_test), 'y_real': y_test, 
         'y_pred': y_pred, 'y_prob': y_prob})
     
-        path_file = f'/app/KNN/Resultados/CV_{K}vecinos_{mww}DTW_{i}.csv'
+        path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}.csv'
         result.to_csv(path_file)

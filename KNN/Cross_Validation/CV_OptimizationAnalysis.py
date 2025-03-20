@@ -19,7 +19,7 @@ def CV_scores(numero_vecinos, cm = True, score_method = sklearn.metrics.recall_s
     dataframes = {} 
     tot_data = {}
     for i in range(0,5):
-        path = f'KNN/Resultados/CV_{numero_vecinos}vecinos_1000DTW_{i}.csv'
+        path = f'KNN/Cross_Validation/Resultados/CV_{numero_vecinos}vecinos_1000DTW_{i}.csv'
         data = pd.read_csv(path, index_col = 0)
         dataframes[f'iteration_{i}'] = pd.DataFrame(data)
 
@@ -38,7 +38,6 @@ def CV_scores(numero_vecinos, cm = True, score_method = sklearn.metrics.recall_s
         plt.savefig(f'KNN/Figuras_Cross_Val/{numero_vecinos}vecinos_total.png')
 
     score = score_method(total_data['y_real'], total_data['y_pred'])
-
     return total_data, score
 
 for i in range(1,4):
