@@ -23,7 +23,7 @@ def cilindricas(L: list, X0: float):
     return theta
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
-def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int) -> pd.DataFrame:
+def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int = 20) -> pd.DataFrame:
     PathDataVignes = '/app/AnalisisVignes/LVignes'
     archivo = os.path.join(PathDataVignes, "L_vignes")
     
