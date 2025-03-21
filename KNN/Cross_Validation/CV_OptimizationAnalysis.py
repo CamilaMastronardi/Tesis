@@ -39,7 +39,8 @@ def CV_scores(numero_vecinos, cm = True, score_method = sklearn.metrics.recall_s
 
     score = score_method(total_data['y_real'], total_data['y_pred'])
     return total_data, score
-
-for i in range(1,4):
-    data, score = CV_scores(i, cm= False)
-    print(f'Recall score f{i} vecino/s {round(score,2)}')
+    
+if __name__=='__main__': 
+    for i in range(1,4):
+        data, score = CV_scores(i, cm= False)
+        print(f'Recall score f{i} vecino/s {round(score,2)}')
