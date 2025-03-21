@@ -74,19 +74,22 @@ def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFr
 start_time = time.time()
 
 MPB_crosses_df = cargarTrainingData(groups=['Group1','Group2','Group3','Group4'])
-data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
 
-for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
-    orbitas = n_orbita(YYYY, MM, DD)
-    for n in range(1, orbitas): 
-        df_not_marked = filtradoVignes(YYYY, MM, DD, n)
-        if len(df_not_marked)!=0:
-            time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
-            is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
-            data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
-            data_KNN_completed = data_to_complete
+def completeData(): 
+    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
 
+    for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
+        orbitas = n_orbita(YYYY, MM, DD)
+        for n in range(1, orbitas): 
+            df_not_marked = filtradoVignes(YYYY, MM, DD, n)
+            if len(df_not_marked)!=0:
+                time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
+                is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
+                data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
+                data_KNN_completed = data_to_complete
+    return data_KNN_completed
 # Calcular tiempo total de ejecución
+data_KNN_completed = completeData()
 end_time = time.time()
 execution_time = end_time - start_time
 
