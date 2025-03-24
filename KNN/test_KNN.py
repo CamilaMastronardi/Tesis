@@ -39,6 +39,32 @@ def test_clase_KNN_usa_los_vecinos_mas_cercanos():
 
 #test_clase_KNN_usa_los_vecinos_mas_cercanos()
 
+def test_clase_KNN_usa_bien_el_peso():
+    X_toy = np.random.random((100,10))
+    y_toy = np.random.randint(0,2, (100))
+    X_toy_train, X_toy_test, y_toy_train, y_toy_test = train_test_split(X_toy, y_toy, test_size=0.33, random_state=42)
+
+    val_1, val_2, val_3 = y_toy_train[1], y_toy_train[2], y_toy_train[3]
+    expected = val_1
+
+    class distance_for_KNN_test(object):
+        def dist_matrix(X_test, X_train): 
+            M = np.ones([len(X_test), len(X_train)])*np.inf
+            M[:,3] = 100
+            M[:,2] = 100
+            M[:,1] = 1
+            return M
+
+    KNN = KNN_timeSeries(distance_for_KNN_test, n_neighbors= 3, use_weights=True)
+    KNN.fit(X_toy_train, y_toy_train)
+    y_pred_labels, y_pred_probas = KNN.predict(X_toy_test)
+    print(val_1,val_2,val_3)
+    print(y_pred_labels)
+    print(expected * np.ones(len(y_pred_labels)))
+    assert (y_pred_labels == expected * np.ones(len(y_pred_labels))).all()
+
+test_clase_KNN_usa_bien_el_peso()
+
 def test_clase_DTW():
 
     x = np.linspace(0,100, 1000)
