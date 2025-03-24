@@ -15,7 +15,9 @@ from sklearn.metrics import confusion_matrix
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
 
-def CV_scores(numero_vecinos, cm = True, score_method = sklearn.metrics.recall_score):
+def CV_scores(numero_vecinos: int, cm: bool = True, 
+    score_method: callable = sklearn.metrics.recall_score) -> (pd.DataFrame, float):
+    
     dataframes = {} 
     tot_data = {}
     for i in range(0,5):
@@ -38,7 +40,7 @@ def CV_scores(numero_vecinos, cm = True, score_method = sklearn.metrics.recall_s
         plt.savefig(f'KNN/Figuras_Cross_Val/{numero_vecinos}vecinos_total.png')
 
     score = score_method(total_data['y_real'], total_data['y_pred'])
-    return total_data, score
+    return dataframes, score
     
 if __name__=='__main__': 
     for i in range(1,4):

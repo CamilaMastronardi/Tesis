@@ -5,7 +5,7 @@ from AcomodarDatosB import acomodarDatos
 import numpy as np
 plt.style.use("./matplotlibStyles.txt")
 
-def separarOrbitas(YYYY, MM, DD):
+def separarOrbitas(YYYY: str, MM: str, DD: str) -> (pd.DataFrame, pd.DataFrame):
 
     df = acomodarDatos(YYYY, MM, DD)
     latitud = pd.read_csv(f'/app/DatosCrudos/datos_campo_magnetico_crudos_pc/z_{DD}-{MM}-{YYYY}_pc.csv', header=None, lineterminator='\n')[:-1]

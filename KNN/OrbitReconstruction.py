@@ -26,7 +26,7 @@ from CorteVignes import _filtradoVignes
 total_data_1vecino, score_1vecino = CV_scores(1, cm = False)
 
 #SOLO PARA TEST DATA  
-def testData() -> pd.DataFrame:
+def testData(iteracion) -> pd.DataFrame:
     data = completeData()
     dates = data['Fecha']
     orbit = data['orbita']
@@ -38,23 +38,60 @@ def testData() -> pd.DataFrame:
         orbit_fold = orbit[test_index]
         reordered_dates = pd.concat([reordered_dates, dates_fold])
         reordered_orbits = pd.concat([reordered_orbits, orbit_fold])
-    return reordered_dates.reset_index(), reordered_orbits.reset_index()
+        if i == iteracion:
+            return reordered_dates.reset_index(), reordered_orbits.reset_index()
 
-dates, orbits = testData()
-todo_junto = pd.concat([total_data_1vecino, dates, orbits], axis=1)
+iteracion0_1vecino = total_data_1vecino['iteration_0']
+dates, orbits = testData(iteracion=0)
+todo_junto = pd.concat([iteracion0_1vecino, dates, orbits], axis=1)
 
 sep_date = [grupo for _, grupo in todo_junto.groupby('Fecha')]
 
-for j in range(len(sep_date)): 
-    print(len(sep_date[j]))
-    data = sep_date[j].reset_index()
-    date = data['Fecha'].iloc[0]
-    YYYY, MM, DD = date.split('-')
-    orbits = data['orbita']
+def plot_B_vs_time(sep_date):
+    for j in range(len(sep_date)): 
+        data = sep_date[j].reset_index()
+        date = data['Fecha'].iloc[0]
+        YYYY, MM, DD = date.split('-')
+        orbits = data['orbita']
 
-    df = acomodarDatos(YYYY, MM, DD)
-    time = df['time']
-    B = df['mod_B']
-    r = df['r_sat']
-        #event_data = _filtradoVignes(YYYY, MM, DD, n)
+        raw = acomodarDatos(YYYY, MM, DD)
+        time = raw['time']
+        B = raw['mod_B']
 
+        plot_flag = False
+        fig, ax = plt.subplots(figsize=(24, 7))
+        ax.plot(time, B, label='B field', color='black', alpha=0.5)
+
+        for n in orbits: 
+            mask = data['orbita'] == n
+            y_pred = data.loc[mask, 'y_pred'].values[0]
+            y_real = data.loc[mask, 'y_real'].values[0]
+
+            if y_pred == y_real == 1:
+                plot_flag = True
+                event_data = _filtradoVignes(YYYY, MM, DD, n)
+                ax.axvspan(event_data['time'].iloc[0], event_data['time'].iloc[-1], color='green', alpha=0.3, label='True Positive')
+            
+            elif y_pred == 1 and y_real == 0:
+                plot_flag = True
+                event_data = _filtradoVignes(YYYY, MM, DD, n)
+                ax.axvspan(event_data['time'].iloc[0], event_data['time'].iloc[-1], color='red', alpha=0.3, label='False Positive')
+            
+            elif y_pred == 0 and y_real == 1:
+                plot_flag = True
+                event_data = _filtradoVignes(YYYY, MM, DD, n)
+                ax.axvspan(event_data['time'].iloc[0], event_data['time'].iloc[-1], color='blue', alpha=0.3, label='False Negative')
+
+        if plot_flag:
+            ax.set_xlabel('Time')
+            ax.set_ylabel('|B|')
+            ax.set_title(f'B field on {YYYY}-{MM}-{DD}')
+            ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+            plt.tight_layout()
+            plt.savefig(f'temp{j}.png')
+            plt.show()
+        else:
+            plt.close(fig)
+
+
+plot_B_vs_time(sep_date)

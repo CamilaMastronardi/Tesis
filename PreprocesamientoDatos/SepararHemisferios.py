@@ -6,7 +6,7 @@ import numpy as np
 
 plt.style.use("./matplotlibStyles.txt")
 
-def separarHemisferios(YYYY, MM, DD):
+def separarHemisferios(YYYY: str, MM: str, DD: str) -> pd.DataFrame:
     #defino funcion para eliminar hemisferios espacios 
     LIMITE_ESPACIADO_TIEMPO = 50/3600
     def tieneEspaciadoTemporal(data_frame):
@@ -32,7 +32,7 @@ def separarHemisferios(YYYY, MM, DD):
 if __name__ == '__main__':
 
     if len(sys.argv) != 2:  # Verifica que se haya ingresado un parámetro después del nombre del programa (argv[0])
-        print("Uso: python separarOrbitas.py YYYY-MM-DD")
+        print("Uso: python SepararHemisferios.py YYYY-MM-DD")
         sys.exit(1)  # Sale del programa
     
     if len(sys.argv) == 2:

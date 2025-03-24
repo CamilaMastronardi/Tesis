@@ -63,7 +63,7 @@ def filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, use_cache=True, ban
 if __name__== '__main__' :
 
   if len(sys.argv) !=3: #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
-        print("Uso: python3 FiteoVignes.py YYYY-MM-DD n°orbira")
+        print("Uso: python3 CorteVignes.py YYYY-MM-DD n°orbira")
         sys.exit(1) #sale del programa
     # Pide al usuario que ingrese la fecha en formato YYYY-MM-DD
     

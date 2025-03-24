@@ -3,7 +3,10 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
-from PreprocesamientoDatos.PromedioPorVentana import filtrarVentana
+root_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
+
+from PromedioPorVentana import filtrarVentana
 import matplotlib.pyplot as plt
 
 plt.style.use("./matplotlibStyles.txt")
@@ -72,8 +75,8 @@ z_fit = r_fit*np.sin(theta_fit)
 #Defino parametros para limites de datos
 deltaL = 10*L_err
 
-r_min = rVignes(theta_fit, L-deltaL)
-r_max = rVignes(theta_fit, L+deltaL)
+r_min = rVignes(theta_fit, L-20*deltaL)
+r_max = rVignes(theta_fit, L+20*deltaL)
 x_max = r_max*np.cos(theta_fit)
 x_min = r_min*np.cos(theta_fit)
 z_max = r_max*np.sin(theta_fit)
@@ -89,8 +92,6 @@ archivoDestino = os.path.join(PathDataVignes, f"L_vignes")
 with open(archivoDestino, "wb") as archivo:
     np.save(archivo, np.array([L, deltaL]))
 
-'''
-Para plotear
 plt.plot(s, rho, 'o')
 plt.plot(x_fit,z_fit)
 plt.plot(x_max,z_max,'--', color='darkblue')
@@ -101,5 +102,4 @@ plt.xlim(min(x_min),max(x_max))
 plt.ylim(min(z_min),max(z_max))
 plt.grid(True)
 
-plt.savefig('pruebavignes.png')
-'''
+plt.savefig('test_vignes.png')
