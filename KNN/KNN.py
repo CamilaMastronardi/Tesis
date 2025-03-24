@@ -200,9 +200,13 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
         
     metric_calculator: str, optional (default= 'dtw') 
             Metric for measure distances between series
+    
+    use_weights: bool, optional (default=False)
+            If false, knn will use a weight d_i/d_max
     """
     
-    def __init__(self, metric_calculator, n_neighbors: int =5):
+    def __init__(self, metric_calculator, n_neighbors: int =5, use_weights: bool = False):
+        self.use_weights = use_weights
         self.n_neighbors = n_neighbors
         self.metric_calculator = metric_calculator
     
@@ -236,20 +240,34 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
               (1) the predicted class labels 
               (2) the knn label count probability
         """
-        
+
         dm = self.metric_calculator.dist_matrix(X, self.X_train)
+        use_weights = self.use_weights
 
         # Identify the k nearest neighbors
-        knn_idx = dm.argsort()[:, :self.n_neighbors]
-
-        # Identify k nearest labels
+        knn_idx = np.argsort(dm, axis=1)[:, :self.n_neighbors]
+        knn_dists = np.take_along_axis(dm, knn_idx, axis=1)
         knn_labels = self.y_train[knn_idx]
 
-        # Model Label
-        mode_label = mode(knn_labels, axis = 1)[0]
-        mode_proba = mode(knn_labels, axis = 1)[1]/self.n_neighbors
+        # Compute weights: w_i = d_k / d_i
+        d_k = knn_dists[:, -1][:, np.newaxis]  
+        weights = d_k / (knn_dists + 1e-9)
 
-        return mode_label, mode_proba
+        # Weighted voting
+        if use_weights: 
+            unique_labels = np.unique(self.y_train)
+            weighted_votes = np.zeros((X.shape[0], len(unique_labels)))
+            for i, label in enumerate(unique_labels):
+                weighted_votes[:, i] = np.sum(weights * (knn_labels == label), axis=1)
+
+            predicted_labels = unique_labels[np.argmax(weighted_votes, axis=1)]
+            confidence_scores = np.max(weighted_votes, axis=1) / np.sum(weighted_votes, axis=1)
+        
+        else: 
+            predicted_labels = mode(knn_labels, axis = 1)[0]
+            confidence_scores = mode(knn_labels, axis = 1)[1]/self.n_neighbors
+
+        return predicted_labels, confidence_scores
     
         def get_params(self, deep=True):
             return {"n_neighbors": self.n_neighbors, "metric_calculator": self.metric_calculator}
@@ -261,7 +279,7 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
 
 if __name__== '__main__' :
     mww = 1000
-    K = 4
+    K = 1
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy().astype(int)
