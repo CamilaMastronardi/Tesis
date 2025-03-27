@@ -23,7 +23,7 @@ sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
 from AcomodarDatosB import acomodarDatos
 from CorteVignes import _filtradoVignes 
 
-total_data_1vecino, score_1vecino = CV_scores(1, cm = False)
+total_data_1vecino, score_1vecino = CV_scores(3, cm = False)
 
 #SOLO PARA TEST DATA  
 def testData(iteracion) -> pd.DataFrame:
@@ -41,7 +41,7 @@ def testData(iteracion) -> pd.DataFrame:
         if i == iteracion:
             return reordered_dates.reset_index(), reordered_orbits.reset_index()
 
-iteracion0_1vecino = total_data_1vecino['iteration_0']
+iteracion0_3vecinos_wighted = total_data_1vecino['iteration_0']
 dates, orbits = testData(iteracion=0)
 todo_junto = pd.concat([iteracion0_1vecino, dates, orbits], axis=1)
 

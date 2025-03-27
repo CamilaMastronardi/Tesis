@@ -279,7 +279,7 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
 
 if __name__== '__main__' :
     mww = 1000
-    K = 1
+    K = 3
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy().astype(int)
@@ -287,7 +287,7 @@ if __name__== '__main__' :
     shuf = ShuffleSplit(n_splits=5, test_size=0.2, random_state= 50)
 
     dtw_calculator = DTW(max_warping_window = mww)
-    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K)
+    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K, use_weights=True)
     
     s = time.time()
 
@@ -306,5 +306,5 @@ if __name__== '__main__' :
         result = pd.DataFrame({'X_test': np.array(X_test), 'y_real': y_test, 
         'y_pred': y_pred, 'y_prob': y_prob})
     
-        path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}.csv'
+        path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}_weighted.csv'
         result.to_csv(path_file)
