@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import sys
 from requests.exceptions import HTTPError
+
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
 
@@ -45,6 +46,41 @@ def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de
         
     print(f'Ignoradas {tot_drop} por cache')
     return date_tot.reset_index()
+
+def cargarData(file_name: str):
+    date_tot = pd.DataFrame(columns = ['YYYY', 'MM', 'DD'])
+    tot_drop = 0
+
+    path = f'/app/data_a_clasificar/{file_name}.csv'
+    col_names = ['date']
+    df = pd.read_csv(path, skiprows=1, header=None, sep=',' ,lineterminator='\n').dropna()
+    df.columns = col_names
+    dates = df.date.str.split('-')
+    path_cache_not_avaiable = f'/app/PreprocesamientoDatos/cache/not_avaiable_date.csv'
+    dates_not_avaiable = pd.read_csv(path_cache_not_avaiable, skiprows=0, header=None, sep=',', lineterminator='\n', names = ['YYYY', 'MM', 'DD'] ,dtype=int)
+    idxs_to_drop = []
+    for idx, date in dates.items():
+        if ((int(date[0])==dates_not_avaiable["YYYY"]) & (int(date[1]) == dates_not_avaiable["MM"]) & (int(date[2]) == dates_not_avaiable["DD"])).any():
+            idxs_to_drop.append(idx) 
+            continue
+        
+        else:
+            try:
+                descargarDatosCampo(date[0], date[1], date[2])
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    print(f'Link no disponible para {date}')
+                else:
+                    raise
+
+        tot_drop = tot_drop + len(idxs_to_drop)
+
+        dates.drop(index = idxs_to_drop, inplace = True)
+
+        date_to_classified = pd.DataFrame(dates.tolist(), columns = ['YYYY', 'MM', 'DD'])
+
+    print(f'Ignoradas {tot_drop} por cache')
+    return date_to_classified.reset_index()
 
 if __name__ == '__main__':
     if len(sys.argv)==2:

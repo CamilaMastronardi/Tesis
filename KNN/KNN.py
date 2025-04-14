@@ -36,7 +36,7 @@ root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
 
 # Funciones de otros archivos
-from DescargaTrainingData import cargarTrainingData
+from DescargaTrainingData import cargarTrainingData, cargarData
 from PreprocesamientoDatos.CorteVignes import filtradoVignes 
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
@@ -62,6 +62,7 @@ def completeData(groups_of_dates: str) -> pd.DataFrame:
     pd.DataFrame with "Fecha", "orbita" and "B"
     """
     data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B"])
+    data = cargarData(groups_of_dates)
 
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(data_to_complete.YYYY, data_to_complete.MM, data_to_complete.DD), start=1), total=len(data_for_KNN), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
@@ -104,8 +105,7 @@ def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.Data
     ]
     return data
 
-MPB_crosses_df = cargarTrainingData(groups=['Group1','Group2','Group3','Group4'])
-
+start_time = time.time()
 def trainingData(groups_of_dates: list[str]) -> pd.DataFrame: 
     MPB_crosses_df = cargarTrainingData(groups_of_dates)
     data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
@@ -121,7 +121,7 @@ def trainingData(groups_of_dates: list[str]) -> pd.DataFrame:
                 data_KNN_completed = data_to_complete
     return data_KNN_completed
 # Calcular tiempo total de ejecución
-data_KNN_completed = trainingDataData(['Group1','Group2','Group3','Group4'])
+data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'])
 end_time = time.time()
 execution_time = end_time - start_time
 
