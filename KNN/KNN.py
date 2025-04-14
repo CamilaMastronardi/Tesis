@@ -341,6 +341,7 @@ if __name__== '__main__' :
 
         result = pd.DataFrame({'X_test': np.array(X_test), 'y_real': y_test, 
         'y_pred': y_pred, 'y_prob': y_prob})
+        result['X_test'] = result['X_test'].apply(lambda x: ', '.join(map(str, x)))
     
         path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}_weighted.csv'
         result.to_csv(path_file)
