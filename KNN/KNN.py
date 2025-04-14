@@ -39,7 +39,40 @@ sys.path.append(root_dir)
 from DescargaTrainingData import cargarTrainingData
 from PreprocesamientoDatos.CorteVignes import filtradoVignes 
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
-    
+
+#para fechas no clasificadas
+def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame) -> pd.DataFrame:
+    data.loc[j, ["Fecha", "orbita", "B"]] = [
+        f"{YYYY}-{MM}-{DD}",
+        orbita,
+        df["mod_B"].to_numpy(), 
+    ]
+    return data
+
+def completeData(groups_of_dates: str) -> pd.DataFrame: 
+    """
+    Returns organized data for KNN 
+
+    Arguments
+    ---------
+    groups_of_dates: str with name of the path with dates to be classified
+
+    Returns
+    -------
+    pd.DataFrame with "Fecha", "orbita" and "B"
+    """
+    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B"])
+
+    for i, (YYYY, MM, DD) in tqdm(enumerate(zip(data_to_complete.YYYY, data_to_complete.MM, data_to_complete.DD), start=1), total=len(data_for_KNN), desc="Procesando fechas"):
+        orbitas = n_orbita(YYYY, MM, DD)
+        for n in range(1, orbitas): 
+            df_to_classified = filtradoVignes(YYYY, MM, DD, n)
+            if len(df_to_classified)!=0:
+                data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete)
+                data_KNN_completed = data_to_complete
+    return data_KNN_completed
+
+#para entrenamiento
 def is_mpb_orbit(orbit_df: pd.DataFrame, mpb_times: pd.DataFrame, delta_sec: int) -> bool:
     """
     Returns True if the orbit has the time corresponded to a mpb crossing and 
@@ -62,7 +95,7 @@ def is_mpb_orbit(orbit_df: pd.DataFrame, mpb_times: pd.DataFrame, delta_sec: int
         has_mpb = has_mpb or (abs(orbit_df["time"] - time) < (delta_sec / 3600)).any()
     return has_mpb
 
-def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame, is_MPB_orbit: bool) -> pd.DataFrame:
+def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame, is_MPB_orbit: bool) -> pd.DataFrame:
     data.loc[j, ["Fecha", "orbita", "tipo", "B"]] = [
         f"{YYYY}-{MM}-{DD}",
         orbita,
@@ -71,11 +104,9 @@ def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFr
     ]
     return data
 
-start_time = time.time()
-
 MPB_crosses_df = cargarTrainingData(groups=['Group1','Group2','Group3','Group4'])
 
-def completeData(groups_of_dates): 
+def trainingData(groups_of_dates: list[str]) -> pd.DataFrame: 
     MPB_crosses_df = cargarTrainingData(groups_of_dates)
     data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
 
@@ -86,11 +117,11 @@ def completeData(groups_of_dates):
             if len(df_not_marked)!=0:
                 time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
                 is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
-                data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
+                data_for_train(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
                 data_KNN_completed = data_to_complete
     return data_KNN_completed
 # Calcular tiempo total de ejecución
-data_KNN_completed = completeData(['Group1','Group2','Group3','Group4'])
+data_KNN_completed = trainingDataData(['Group1','Group2','Group3','Group4'])
 end_time = time.time()
 execution_time = end_time - start_time
 
