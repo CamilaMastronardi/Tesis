@@ -56,5 +56,5 @@ def train(data_to_be_classified, mww=1000, K=1, weights = False):
     result = pd.DataFrame({'X': np.array(X_test), 'is_mpb': y_test, 
         'y_pred': y_pred, 'y_prob': y_prob})
     
-    path_file = f'/app/KNN/Clasificador/CV_{K}vecinos_{mww}DTW.csv'
+    path_file = f'/app/KNN/Clasificador/CampoMagnetico_2015_{K}vecinos_{mww}DTW.csv'
     result.to_csv(path_file)

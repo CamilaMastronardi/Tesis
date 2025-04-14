@@ -38,7 +38,7 @@ def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de
 
         tot_drop = tot_drop + len(idxs_to_drop)
 
-        dates.drop(index = idxs_to_drop, inplace = True)
+        dates.drop(dates.index[idxs_to_drop], inplace = True)
 
         date_MPB = pd.DataFrame(dates.tolist(), columns = ['YYYY', 'MM', 'DD'])
         date_MPB['MPB_time'] = df.MPB_time
@@ -73,13 +73,13 @@ def cargarData(file_name: str):
                 else:
                     raise
 
-        tot_drop = tot_drop + len(idxs_to_drop)
+    tot_drop = tot_drop + len(idxs_to_drop)
+    dates.drop(dates.index[idxs_to_drop], inplace = True)
 
-        dates.drop(index = idxs_to_drop, inplace = True)
-
-        date_to_classified = pd.DataFrame(dates.tolist(), columns = ['YYYY', 'MM', 'DD'])
+    date_to_classified = pd.DataFrame(dates.tolist(), columns = ['YYYY', 'MM', 'DD'])
 
     print(f'Ignoradas {tot_drop} por cache')
+    
     return date_to_classified.reset_index()
 
 if __name__ == '__main__':

@@ -64,12 +64,12 @@ def completeData(groups_of_dates: str) -> pd.DataFrame:
     data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B"])
     data = cargarData(groups_of_dates)
 
-    for i, (YYYY, MM, DD) in tqdm(enumerate(zip(data_to_complete.YYYY, data_to_complete.MM, data_to_complete.DD), start=1), total=len(data_for_KNN), desc="Procesando fechas"):
+    for i, (YYYY, MM, DD) in tqdm(enumerate(zip(data.YYYY, data.MM, data.DD), start=1), total=len(data), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
             df_to_classified = filtradoVignes(YYYY, MM, DD, n)
             if len(df_to_classified)!=0:
-                data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete)
+                data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_to_classified, data_to_complete)
                 data_KNN_completed = data_to_complete
     return data_KNN_completed
 
@@ -105,7 +105,6 @@ def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.Data
     ]
     return data
 
-start_time = time.time()
 def trainingData(groups_of_dates: list[str]) -> pd.DataFrame: 
     MPB_crosses_df = cargarTrainingData(groups_of_dates)
     data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
@@ -120,13 +119,8 @@ def trainingData(groups_of_dates: list[str]) -> pd.DataFrame:
                 data_for_train(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
                 data_KNN_completed = data_to_complete
     return data_KNN_completed
-# Calcular tiempo total de ejecución
-data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'])
-end_time = time.time()
-execution_time = end_time - start_time
 
-print(f"Tiempo de ejecución: {execution_time:.2f} segundos")
-
+#DTW
 
 @njit
 def euclidean(x, y):
@@ -221,6 +215,7 @@ class DTW(object):
                 dm[i, j] = self.dtw_distance(X_test[i], X_train[j])
         return dm
 
+#KNN
 
 class KNN_timeSeries(BaseEstimator, ClassifierMixin):
     """K-nearest neighbor classifier using an indicated metric for series
@@ -310,6 +305,15 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
             return self
 
 if __name__== '__main__' :
+    # Descargar Training data
+    print('Descargando y ordenando data de entrenamiento')
+    start_time = time.time()
+    data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'])
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
+
     mww = 1000
     K = 3
 
