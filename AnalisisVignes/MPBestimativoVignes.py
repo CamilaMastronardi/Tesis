@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from PreprocesamientoDatos.Filtros import lowpass_filter, highpass_filter 
 from PreprocesamientoDatos.PromedioPorVentana import filtrarVentana, n_orbita
 
-plt.style.use("./matplotlibStyles.txt")
+#plt.style.use("./matplotlibStyles.txt")
 
 def dataframeMPBAOjo(YYYY, MM, DD, orbita):
     df = filtrarVentana(YYYY, MM, DD, orbita)

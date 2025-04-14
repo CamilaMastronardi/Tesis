@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from SepararOrbitas import separarOrbitas
 import numpy as np
 
-plt.style.use("./matplotlibStyles.txt")
+#plt.style.use("./matplotlibStyles.txt")
 
 def separarHemisferios(YYYY: str, MM: str, DD: str) -> pd.DataFrame:
     #defino funcion para eliminar hemisferios espacios 

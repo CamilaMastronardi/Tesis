@@ -14,7 +14,7 @@ import sys
 import os
 import csv
 
-plt.style.use("./matplotlibStyles.txt")
+#plt.style.use("./matplotlibStyles.txt")
 
 def n_orbita(YYYY: str, MM: str, DD: str) -> int:
   cache_dir = os.path.join(os.path.dirname(__file__),'cache/') 

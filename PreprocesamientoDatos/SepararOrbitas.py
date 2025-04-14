@@ -3,7 +3,9 @@ import sys
 import matplotlib.pyplot as plt
 from AcomodarDatosB import acomodarDatos
 import numpy as np
-plt.style.use("./matplotlibStyles.txt")
+import os
+
+#plt.style.use("matplotlibStyles.txt")
 
 def separarOrbitas(YYYY: str, MM: str, DD: str) -> (pd.DataFrame, pd.DataFrame):
 
