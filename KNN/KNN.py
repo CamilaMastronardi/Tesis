@@ -42,10 +42,11 @@ from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
 #para fechas no clasificadas
 def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame) -> pd.DataFrame:
-    data.loc[j, ["Fecha", "orbita", "B"]] = [
+    data.loc[j, ["Fecha", "orbita", "B", "time"]] = [
         f"{YYYY}-{MM}-{DD}",
         orbita,
         df["mod_B"].to_numpy(), 
+        df["time"].to_numpy()
     ]
     return data
 
@@ -61,7 +62,7 @@ def completeData(groups_of_dates: str) -> pd.DataFrame:
     -------
     pd.DataFrame with "Fecha", "orbita" and "B"
     """
-    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B"])
+    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "time"])
     data = cargarData(groups_of_dates)
 
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(data.YYYY, data.MM, data.DD), start=1), total=len(data), desc="Procesando fechas"):

@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import os
+import json
 import sys
 
 #para la visualización
@@ -27,7 +28,7 @@ total_data_1vecino, score_1vecino = CV_scores(3, cm = False)
 
 #SOLO PARA TEST DATA  
 def testData(iteracion) -> pd.DataFrame:
-    data = completeData()
+    data = completeData(['Group1','Group2','Group3','Group4'])
     dates = data['Fecha']
     orbit = data['orbita']
     shuf = ShuffleSplit(n_splits=5, test_size=0.2, random_state= 50)
@@ -41,13 +42,13 @@ def testData(iteracion) -> pd.DataFrame:
         if i == iteracion:
             return reordered_dates.reset_index(), reordered_orbits.reset_index()
 
-iteracion0_3vecinos_wighted = total_data_1vecino['iteration_0']
-dates, orbits = testData(iteracion=0)
-todo_junto = pd.concat([iteracion0_1vecino, dates, orbits], axis=1)
+#iteracion0_3vecinos_wighted = total_data_1vecino['iteration_0']
+#dates, orbits = testData(iteracion=0)
+#todo_junto = pd.concat([iteracion0_1vecino, dates, orbits], axis=1)
 
-sep_date = [grupo for _, grupo in todo_junto.groupby('Fecha')]
+#sep_date = [grupo for _, grupo in todo_junto.groupby('Fecha')]
 
-def plot_B_vs_time(sep_date):
+def plot_B_vs_time(sep_date: pd.DataFrame):
     for j in range(len(sep_date)): 
         data = sep_date[j].reset_index()
         date = data['Fecha'].iloc[0]
@@ -92,6 +93,57 @@ def plot_B_vs_time(sep_date):
             plt.show()
         else:
             plt.close(fig)
+def str_to_list(data: str) -> list: 
+    '''
+    Arguments: 
 
+    data: str with data in a str of a list '[a, b, c, ...]'
 
-plot_B_vs_time(sep_date)
+    Returns
+    list of floats containing the str data
+    '''
+    data = data.replace('[','')
+    data = data.replace(']','')
+    list_data = data.split(',')
+    list_data = [float(x) for x in list_data]
+
+    return list_data
+
+path = "KNN/Clasificador/CampoMagnetico_2015_1vecinos_1000DTW_test.csv"
+
+def plot_B_t(file_path: str): 
+    df = pd.read_csv(path, sep = ',', index_col = 0)
+    dates = df['Fecha']
+    B = df['X']
+    MPB = df['y_pred']
+    time = df['time']
+    
+    last_date = None
+    for i in range(len(dates)):
+        YYYY, MM, DD = dates[i].split('-')
+
+        raw_data = pd.read_csv(f'DatosCrudos/datos_campo_magnetico_crudos/datos_{DD}-{MM}-{YYYY}.csv')
+
+        raw_data_acomodada = acomodarDatos(YYYY, MM, DD)
+        B_raw = raw_data_acomodada['mod_B'].rolling(10).sum()/10
+        time_raw = raw_data_acomodada['time']
+
+        B_n = str_to_list(B[i])
+        t_n = str_to_list(time[i])
+
+        if dates[i]!= last_date:
+            plt.plot(time_raw, B_raw, label='B field', color='black', alpha = 0.5)
+        last_date = dates[i]
+
+        if MPB[i] == 1:
+            plt.axvspan(t_n[0],t_n[-1], color='blue', alpha=0.3, label='MPB zone detected')
+            plt.xlabel('Time')
+            plt.ylabel('|B|')
+            plt.title(f'B field on {YYYY}-{MM}-{DD}')
+            plt.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+            plt.tight_layout()
+        
+        plt.savefig(f'test{dates[i]}.png')
+        plt.show()
+
+plot_B_t(path)
