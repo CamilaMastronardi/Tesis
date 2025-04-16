@@ -109,7 +109,7 @@ def str_to_list(data: str) -> list:
 
     return list_data
 
-path = "KNN/Clasificador/CampoMagnetico_2015_1vecinos_1000DTW_test.csv"
+path = "KNN/Clasificador/CampoMagnetico_2015_1vecinos_1000DTW.csv"
 
 def plot_B_t(file_path: str): 
     df = pd.read_csv(path, sep = ',', index_col = 0)
@@ -119,6 +119,7 @@ def plot_B_t(file_path: str):
     time = df['time']
     
     last_date = None
+    type = ''
     for i in range(len(dates)):
         YYYY, MM, DD = dates[i].split('-')
 
@@ -132,18 +133,29 @@ def plot_B_t(file_path: str):
         t_n = str_to_list(time[i])
 
         if dates[i]!= last_date:
-            plt.plot(time_raw, B_raw, label='B field', color='black', alpha = 0.5)
+            plt.figure(figsize=(24,7))
+            plt.plot(time_raw[::-1], B_raw[::-1], label='B field', color='black', alpha = 0.5)
+            type = ''
         last_date = dates[i]
 
         if MPB[i] == 1:
             plt.axvspan(t_n[0],t_n[-1], color='blue', alpha=0.3, label='MPB zone detected')
-            plt.xlabel('Time')
-            plt.ylabel('|B|')
-            plt.title(f'B field on {YYYY}-{MM}-{DD}')
-            plt.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
-            plt.tight_layout()
-        
-        plt.savefig(f'test{dates[i]}.png')
-        plt.show()
+            type = 'detected'
+        elif MPB[i] == 0:
+            plt.axvspan(t_n[0],t_n[-1], color='red', alpha=0.3, label='Analized zone')
+
+        plt.xlabel('Time', fontsize = 20)
+        plt.ylabel('|B|', fontsize = 20)
+        plt.xticks(fontsize = 16)
+        plt.yticks(fontsize = 16)
+        plt.ylim(-1,60)
+        plt.title(f'B field on {YYYY}-{MM}-{DD}', fontsize = 24)
+        handles, labels = plt.gca().get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        plt.legend(by_label.values(), by_label.keys(), loc='upper left', 
+                   bbox_to_anchor=(1.05, 1), borderaxespad=0., fontsize = 18)
+        plt.tight_layout()
+            
+        plt.savefig(f'KNN/Clasificador/Figuras/{dates[i]}_{type}_reconstruccion.png')
 
 plot_B_t(path)
