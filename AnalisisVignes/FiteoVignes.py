@@ -2,104 +2,129 @@ import sys
 import os
 import numpy as np
 import pandas as pd
-from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
+from matplotlib.patches import Wedge
+
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
+from AcomodarDatosB import acomodarDatos
 
-from PromedioPorVentana import filtrarVentana
-import matplotlib.pyplot as plt
 
-plt.style.use("./matplotlibStyles.txt")
+#defino datos que necesito para sacar la posicion angular
+radio_marte_prom = 3389.5
+X0 = 0.78*radio_marte_prom #esto lo saco del paper de Vignes
+epsilon = 0.9 #valor en vignes
+L = 0.96
 
-dataframe = pd.read_csv(f'/app/AnalisisVignes/data.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
+L_BS = 2.04
+epsilon_BS = 1.03
+
+#Necesito definir estas funciones de nuevo porque para importarlas se ejecuta todo el codigo de FiteoVignes desde cero. 
+def rVignes(theta: np.array, L: float) -> float: 
+    return X0 + L*radio_marte_prom/(1+epsilon*np.cos(theta))
+
+def BSVignes(theta: np.array) -> float: 
+    return X0 + L_BS*radio_marte_prom/(1+epsilon_BS*np.cos(theta))
+
+def cilindricas(L: list):
+    x, y, z = np.array(L[0]), np.array(L[1]), np.array(L[2])
+    rho = np.sqrt(y**2+z**2)
+    r = np.sqrt(rho**2+x**2)
+    theta = np.arccos(x/r) 
+    return rho, theta
+
 def posicionesCercanasEnTiempo(df, time):
     fila_cercana = df[((df.time - time).abs()) <= ((df.time - time).abs().min())]
     try:
         return fila_cercana['posX'].iloc[0], fila_cercana['posY'].iloc[0], fila_cercana['posZ'].iloc[0]
     except IndexError: #cuando fila_cercana analiza una fila vacia no se puede acceder a loc [0] y ocurre un indexerror
         return np.nan, np.nan, np.nan
-
-r_MPB = []
-r_err = []
-for label, content in dataframe.iterrows():
-    year, month, day, orbita, time, delta_time = content['YYYY'], content['MM'], content['DD'], content['orbita'], content['MPB_time'], content['dt']
-    datos_para_analisis = filtrarVentana(year, month, day, int(orbita))
-    x_MPB, y_MPB, z_MPB = posicionesCercanasEnTiempo(datos_para_analisis, time)
-    x_min, y_min, z_min = posicionesCercanasEnTiempo(datos_para_analisis, time - delta_time)
-    x_max, y_max, z_max = posicionesCercanasEnTiempo(datos_para_analisis, time + delta_time)
-    x_err, y_err, z_err = x_max - x_min, y_max - y_min, z_max - z_min
     
-    r_MPB.append([x_MPB, y_MPB, z_MPB])
-    r_err.append([x_err, y_err, z_err])
-'''
-Defino las coordenadas en cilindricas al rededor del eje x, ya que asi
-puedo utilizar (debido a la simetria de revolucion) solo las coordenadas
-rho y x. En otras palabras, puedo utilizar solo el radio de cilindricas rho
-y el angulo theta definido entre x y z. 
-'''
-def cilindricas(L, X0):
-    x, y, z = L[0], L[1], L[2] 
-    s = x + X0
-    rho = np.sqrt(y**2+z**2)
-    r = np.sqrt(rho**2+s**2)
-    #phi = np.arctan(y/z)
-    theta = np.arccos(s/r) 
-    return rho ,s, r, theta
+dataframe = pd.read_csv(f'/app/AnalisisVignes/data_test.txt', header=0, sep='\s*,\s*', dtype={x : 'str' for x in ['YYYY', 'MM', 'DD'] })
+def pos():
+    X = []
+    Y = []
+    Z = []
+    i = 1
+    for label, content in dataframe.iterrows():
+        print(f'{i} de {len(dataframe)}')
+        i = i + 1
+        try:
+            year, month, day, time = content['YYYY'], content['MM'], content['DD'], content['MPB_time']
+            datos_para_analisis = acomodarDatos(year, month, day)
+            x_MPB, y_MPB, z_MPB = posicionesCercanasEnTiempo(datos_para_analisis, time)  
+            if z_MPB>0:
+                X.append(x_MPB)
+                Y.append(y_MPB)
+                Z.append(z_MPB)
+        except:
+            continue
 
-radio_marte_prom = 3389.5
-X0 = -0.78*radio_marte_prom #esto lo saco del paper de Vignes
-epsilon = 0.9 #valor en vignes
+    pos_MPB = [X, Y, Z]
 
-posicion = np.array([cilindricas(i, X0, radio_marte_prom) for i in r_MPB])
-posicion_err = np.array([cilindricas(i, X0, radio_marte_prom) for i in r_err])
+    return pos_MPB
 
-rho = posicion[:,0]
-s = posicion[:,1]
-r = posicion[:,2]
-theta = posicion[:,3]
-rho_err = posicion_err[:,0]
+pos_MPB = pos()
 
-def rVignes(theta, L): #Importa los datos acomodados de campo magnetico y hace el ajuste
-    return L*radio_marte_prom/(1+epsilon*np.cos(theta))
+def graficoDeltaL(bandsize: int):
+    rho_MPB, theta_MPB = cilindricas(pos_MPB)
+    x_MPB = pos_MPB[0]
 
-popt, pcov = curve_fit(rVignes, theta, rho, nan_policy='omit') #hago un ajuste por cuadrados minimos
-L = popt[0]
-L_err = np.sqrt(np.diag(pcov))[0]
-print(f'{L}+-{L_err}')
+    theta = np.linspace(-np.pi, np.pi, 100)
+    deltaL = L*bandsize/100
+    r = rVignes(theta, L)
+    r_max = rVignes(theta,L+deltaL)
+    r_min = rVignes(theta,L-deltaL)
+    x,y = r*(np.cos(theta), np.sin(theta))
+    x_max, y_max = r_max*(np.cos(theta), np.sin(theta))
+    x_min, y_min = r_min*(np.cos(theta), np.sin(theta))
 
-theta_fit = np.linspace(0,max(theta), 50000)
-r_fit = rVignes(theta_fit, L)
-x_fit = r_fit*np.cos(theta_fit)
-z_fit = r_fit*np.sin(theta_fit)
+    r_BS = BSVignes(theta)
+    x_BS, y_BS = r_BS*(np.cos(theta), np.sin(theta))
 
-#Defino parametros para limites de datos
-deltaL = 10*L_err
+    largo1 = 20
+    largo2 = 12
+    fig, ax = plt.subplots(figsize=(largo1, largo2))
+    ax.plot(radio_marte_prom*np.cos(theta),radio_marte_prom*np.sin(theta), color = 'black')
+    ax.scatter(x_MPB,rho_MPB, zorder = 100)
+    wedge = Wedge((0, 0), radio_marte_prom, -90, 90, facecolor='black', edgecolor='none')
+    ax.add_patch(wedge)
+    ax.plot(x,y, color='red')
+    ax.plot(x_BS,y_BS, color='grey')
+    ax.plot(x_min,y_min, color='pink')
+    ax.plot(x_max,y_max, color = 'pink')
+    ax.set_xlim(-3*radio_marte_prom,2*radio_marte_prom)
+    ax.set_ylim(-0.5*radio_marte_prom*largo2/largo1,(4.5*radio_marte_prom)*largo2/largo1)
+    plt.grid()
+    plt.savefig('temp.png')
 
-r_min = rVignes(theta_fit, L-20*deltaL)
-r_max = rVignes(theta_fit, L+20*deltaL)
-x_max = r_max*np.cos(theta_fit)
-x_min = r_min*np.cos(theta_fit)
-z_max = r_max*np.sin(theta_fit)
-z_min = r_min*np.sin(theta_fit)
+graficoDeltaL(50)
 
-PathDataVignes = '/app/AnalisisVignes/LVignes'
+def test_cilindricas():
+    a = 3  # semieje mayor en x
+    b = 1  # semiejes menores en y y z
 
-if not os.path.exists(PathDataVignes):
-    os.makedirs(PathDataVignes)
-    
-archivoDestino = os.path.join(PathDataVignes, f"L_vignes")
+    # Número de puntos
+    N = 50
 
-with open(archivoDestino, "wb") as archivo:
-    np.save(archivo, np.array([L, deltaL]))
+    # Generamos puntos sobre la superficie de una esfera (parametrización uniforme en la esfera)
+    theta = np.random.uniform(0, np.pi / 2, N)        # colatitud: 0 a pi/2 → z > 0
+    phi = np.random.uniform(0, np.pi / 2, N)          # longitud: 0 a pi/2 → x > 0
 
-plt.plot(s, rho, 'o')
-plt.plot(x_fit,z_fit)
-plt.plot(x_max,z_max,'--', color='darkblue')
-plt.plot(x_min,z_min,'--', color='darkblue')
-plt.xlabel('$\~{x}$') 
-plt.ylabel('$\~{z}$')
-plt.xlim(min(x_min),max(x_max))
-plt.ylim(min(z_min),max(z_max))
-plt.grid(True)
+    # Coordenadas sobre la esfera unitaria
+    x_s = np.sin(theta) * np.cos(phi)
+    y_s = np.sin(theta) * np.sin(phi)
+    z_s = np.cos(theta)
 
-plt.savefig('test_vignes.png')
+    # Escalamos al elipsoide
+    x = a * x_s
+    y = b * y_s
+    z = b * z_s
+    L = [x, y, z]
+    rho, theta = cilindricas(L)
+
+    fig = plt.figure(figsize=(18,6))
+    plt.scatter(x,rho)
+    plt.savefig('tempcil2.png')
+
+test_cilindricas()
