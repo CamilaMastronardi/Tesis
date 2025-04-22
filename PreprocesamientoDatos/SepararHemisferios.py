@@ -22,8 +22,8 @@ def separarHemisferios(YYYY: str, MM: str, DD: str) -> pd.DataFrame:
     latitud['cambio'] = ((latitud > 0) & (latitud.shift(1) <= 0)) | ((latitud < 0) & (latitud.shift(1) >= 0)) 
     df['hemisferio'] = latitud['cambio'].cumsum() # Creo columna para hemisferios
 
-    # Filtro filas donde la latitud es positivo
-    df_latitud_positivas = df[(latitud[0]>0) | ((latitud[0]>-3500) & (df['posX'] > 1000))]
+    # Filtro filas donde la latitud mayor a 15 grados sur, y para los casos en los que el satelite esta muy alto
+    df_latitud_positivas = df[(latitud[0]>-877.3) | (df['posX'] > 1000)]
 
     df_latitud_positivas = df_latitud_positivas.groupby('orbita').filter(tieneEspaciadoTemporal)
 
