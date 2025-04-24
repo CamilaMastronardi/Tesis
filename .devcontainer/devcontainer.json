@@ -1,0 +1,24 @@
+{
+    "name": "Tesis Container",
+    "dockerComposeFile": "../compose.yaml",
+    "service": "tesis",
+    "workspaceFolder": "/app", 
+    "remoteUser": "root",
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "python.analysis.extraPaths": [
+            "/app",
+            "/app/KNN",
+            "/app/KNN/Cross_Validation",
+            "/app/PreprocesamientoDatos"
+          ]
+        },
+    "extensions": [
+      "ms-python.python",
+      "ms-python.vscode-pylance"
+    ]
+    }
+    }
+  }
+  

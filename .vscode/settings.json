@@ -1,0 +1,9 @@
+{
+    "python.analysis.extraPaths": [
+        "/home/cami/Tesis",
+        "/home/cami/Tesis/KNN",
+        "/home/cami/Tesis/PreprocesamientoDatos",
+        "./PreprocesamientoDatos",
+        "./KNN/Cross_Validation"
+    ]
+}
