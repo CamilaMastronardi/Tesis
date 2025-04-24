@@ -1,9 +1,6 @@
 # Librerias basicas para manejo de datos
 import numpy as np
 import pandas as pd
-import os
-import json
-import sys
 
 #para la visualización
 import matplotlib.pyplot as plt 
@@ -14,21 +11,21 @@ import sklearn.metrics
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import ShuffleSplit
 
-root_dir = os.path.dirname(os.path.dirname(__file__))
-from KNN import completeData
+from KNN import completeData, trainingData
 
-sys.path.append(os.path.join(root_dir, 'KNN/Cross_Validation'))
 from CV_OptimizationAnalysis import CV_scores
 
-sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
 from AcomodarDatosB import acomodarDatos
 from CorteVignes import _filtradoVignes 
 
-total_data_1vecino, score_1vecino = CV_scores(3, cm = False)
+total_data_1vecino, score_1vecino = CV_scores(1, cm = False, cv_iter = [0,1,2,3])
 
 #SOLO PARA TEST DATA  
-def testData(iteracion) -> pd.DataFrame:
-    data = completeData(['Group1','Group2','Group3','Group4'])
+def testData(iteracion, train: bool = True) -> pd.DataFrame:
+    if train:
+        data = trainingData(['Group1','Group2','Group3','Group4'], use_cache=True)
+    else:
+        data = completeData(['Group1','Group2','Group3','Group4'])
     dates = data['Fecha']
     orbit = data['orbita']
     shuf = ShuffleSplit(n_splits=5, test_size=0.2, random_state= 50)
@@ -42,11 +39,11 @@ def testData(iteracion) -> pd.DataFrame:
         if i == iteracion:
             return reordered_dates.reset_index(), reordered_orbits.reset_index()
 
-#iteracion0_3vecinos_wighted = total_data_1vecino['iteration_0']
-#dates, orbits = testData(iteracion=0)
-#todo_junto = pd.concat([iteracion0_1vecino, dates, orbits], axis=1)
+iteracion0_1vecino = total_data_1vecino['iteration_0']
+dates, orbits = testData(iteracion=0)
+todo_junto = pd.concat([iteracion0_1vecino, dates, orbits], axis=1)
 
-#sep_date = [grupo for _, grupo in todo_junto.groupby('Fecha')]
+sep_date = [grupo for _, grupo in todo_junto.groupby('Fecha')]
 
 def plot_B_vs_time(sep_date: pd.DataFrame):
     for j in range(len(sep_date)): 
@@ -93,6 +90,9 @@ def plot_B_vs_time(sep_date: pd.DataFrame):
             plt.show()
         else:
             plt.close(fig)
+
+plot_B_vs_time(sep_date)
+
 def str_to_list(data: str) -> list: 
     '''
     Arguments: 
@@ -158,4 +158,4 @@ def plot_B_t(file_path: str):
             
         plt.savefig(f'KNN/Clasificador/Figuras/{dates[i]}_{type}_reconstruccion.png')
 
-plot_B_t(path)
+#plot_B_t(path)

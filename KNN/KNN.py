@@ -16,7 +16,6 @@ import time
 from typing import Callable, Any, Iterable
 
 # Libreria para acelerar loops
-import numba
 from numba import njit, prange
 
 # Librerias para DTW
@@ -42,15 +41,23 @@ from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
 #para fechas no clasificadas
 def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame) -> pd.DataFrame:
-    data.loc[j, ["Fecha", "orbita", "B", "time"]] = [
-        f"{YYYY}-{MM}-{DD}",
-        orbita,
-        df["mod_B"].to_numpy(), 
-        df["time"].to_numpy()
+    data.loc[j, ["Fecha", "orbita", "B", "Bx", "By", "Bz", "time", "posX", "posY", "posZ"]] = [
+        f"{YYYY}-{MM}-{DD}", orbita, df["mod_B"].to_numpy(), df["time"].to_numpy(), 
+        df["posX"].to_numpy(), df["posY"].to_numpy(), df["posZ"].to_numpy(),
+
     ]
     return data
 
-def completeData(groups_of_dates: str) -> pd.DataFrame: 
+def outbound_to_inbound(df):
+    posx = df['posX'][0]
+    posXdt = np.gradient(posx)
+    type = np.mean(posXdt)
+    if type>=0:
+        return df
+    if type<0: 
+        return df.iloc[::-1]
+
+def completeData(groups_of_dates: str, use_cache: bool) -> pd.DataFrame: 
     """
     Returns organized data for KNN 
 
@@ -62,16 +69,16 @@ def completeData(groups_of_dates: str) -> pd.DataFrame:
     -------
     pd.DataFrame with "Fecha", "orbita" and "B"
     """
-    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "time"])
+    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "Bx", "By", "Bz", "time", "posX", "posY", "posZ"])
     data = cargarData(groups_of_dates)
 
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(data.YYYY, data.MM, data.DD), start=1), total=len(data), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
-            df_to_classified = filtradoVignes(YYYY, MM, DD, n)
+            df_to_classified = filtradoVignes(YYYY, MM, DD, n, use_cache)
             if len(df_to_classified)!=0:
                 data_for_KNN(len(data_to_complete), YYYY, MM, DD, n, df_to_classified, data_to_complete)
-                data_KNN_completed = data_to_complete
+                data_KNN_completed = outbound_to_inbound(data_to_complete)
     return data_KNN_completed
 
 #para entrenamiento
@@ -98,27 +105,27 @@ def is_mpb_orbit(orbit_df: pd.DataFrame, mpb_times: pd.DataFrame, delta_sec: int
     return has_mpb
 
 def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame, is_MPB_orbit: bool) -> pd.DataFrame:
-    data.loc[j, ["Fecha", "orbita", "tipo", "B"]] = [
-        f"{YYYY}-{MM}-{DD}",
-        orbita,
-        int(is_MPB_orbit),
-        df["mod_B"].to_numpy(), 
+    data.loc[j, ["Fecha", "orbita", "tipo", "B", "Bx", "By", "Bz", "time", "posX", "posY", "posZ"]] = [
+        f"{YYYY}-{MM}-{DD}", orbita, int(is_MPB_orbit), df["mod_B"].to_numpy(), df["Bx"].to_numpy(), df["By"].to_numpy(),
+         df["Bz"].to_numpy(), df["time"].to_numpy(), 
+        df["posX"].to_numpy(), df["posY"].to_numpy(), df["posZ"].to_numpy(),
     ]
     return data
 
-def trainingData(groups_of_dates: list[str]) -> pd.DataFrame: 
+def trainingData(groups_of_dates: list[str], use_cache: bool) -> pd.DataFrame: 
     MPB_crosses_df = cargarTrainingData(groups_of_dates)
-    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "B", "tipo"])
+    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "tipo", "B", "Bx", "By", 
+                                             "Bz", "time", "posX", "posY", "posZ"])
 
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
-            df_not_marked = filtradoVignes(YYYY, MM, DD, n)
+            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache)
             if len(df_not_marked)!=0:
                 time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
                 is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
                 data_for_train(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
-                data_KNN_completed = data_to_complete
+                data_KNN_completed = outbound_to_inbound(data_to_complete)
     return data_KNN_completed
 
 #DTW
@@ -309,14 +316,14 @@ if __name__== '__main__' :
     # Descargar Training data
     print('Descargando y ordenando data de entrenamiento')
     start_time = time.time()
-    data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'])
+    data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'], use_cache = True)
     end_time = time.time()
     execution_time = end_time - start_time
 
     print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
 
     mww = 1000
-    K = 3
+    K = 1
 
     X = data_KNN_completed['B']
     y = data_KNN_completed['tipo'].to_numpy().astype(int)
@@ -328,8 +335,7 @@ if __name__== '__main__' :
     
     s = time.time()
 
-    for i, (train_index, test_index) in enumerate(shuf.split(X, y)):
-        
+    for i, (train_index, test_index) in enumerate(shuf.split(X, y)):         
         X_train = X[train_index]
         y_train = y[train_index]
         X_test = X[test_index]
@@ -344,5 +350,6 @@ if __name__== '__main__' :
         'y_pred': y_pred, 'y_prob': y_prob})
         result['X_test'] = result['X_test'].apply(lambda x: ', '.join(map(str, x)))
     
-        path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}_weighted.csv'
+        path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}_weighted_v2.csv'
         result.to_csv(path_file)
+    
