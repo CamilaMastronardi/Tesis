@@ -42,9 +42,9 @@ def filtrarVentana(YYYY: str,MM: str, DD: str, orbita: int):
   data = separarHemisferios(YYYY, MM, DD) #es un pd.dataframe
   data_orbita = data.loc[(data['orbita'] == orbita)]
   
-  Bx_promediado = data_orbita.Bx.rolling(10, center=True).mean().dropna() # Eliminamos filas con NaN
-  By_promediado = data_orbita.By.rolling(10, center=True).mean().dropna()
-  Bz_promediado = data_orbita.Bz.rolling(10, center=True).mean().dropna()
+  Bx_promediado = data_orbita.Bx.rolling(20, center=True).mean().dropna() # Eliminamos filas con NaN
+  By_promediado = data_orbita.By.rolling(20, center=True).mean().dropna()
+  Bz_promediado = data_orbita.Bz.rolling(20, center=True).mean().dropna()
 
   B_vector_promediado = np.array([Bx_promediado, By_promediado, Bz_promediado]).transpose()
   B_promediado = np.zeros(len(B_vector_promediado[:,0]))
@@ -53,11 +53,11 @@ def filtrarVentana(YYYY: str,MM: str, DD: str, orbita: int):
       B_promediado[i] = B_f
   
   # Eliminar NaNs
-  time_promediado = data_orbita.time.rolling(10, center=True).mean().dropna()
-  r_sat_promediado = data_orbita.r_sat.rolling(10, center=True).mean().dropna()
-  x_sat = data_orbita.posX.rolling(10, center=True).mean().dropna()
-  y_sat = data_orbita.posY.rolling(10, center=True).mean().dropna()
-  z_sat = data_orbita.posZ.rolling(10, center=True).mean().dropna()
+  time_promediado = data_orbita.time.rolling(20, center=True).mean().dropna()
+  r_sat_promediado = data_orbita.r_sat.rolling(20, center=True).mean().dropna()
+  x_sat = data_orbita.posX.rolling(20, center=True).mean().dropna()
+  y_sat = data_orbita.posY.rolling(20, center=True).mean().dropna()
+  z_sat = data_orbita.posZ.rolling(20, center=True).mean().dropna()
 
   Bx = data_orbita.Bx.dropna()
   By = data_orbita.By.dropna()

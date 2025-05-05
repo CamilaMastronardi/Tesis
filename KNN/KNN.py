@@ -132,7 +132,7 @@ def trainingData(groups_of_dates: list[str], use_cache: bool) -> pd.DataFrame:
 
 @njit
 def euclidean(x, y):
-    return abs(x - y)
+    return abs(x - y)/np.sqrt(x**2 + y**2)
 
 @njit
 def squared_metric(x, y):
@@ -331,11 +331,11 @@ if __name__== '__main__' :
     shuf = ShuffleSplit(n_splits=5, test_size=0.2, random_state= 50)
 
     dtw_calculator = DTW(max_warping_window = mww)
-    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K, use_weights=True)
+    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K, use_weights=False)
     
     s = time.time()
 
-    for i, (train_index, test_index) in enumerate(shuf.split(X, y)):         
+    for i, (train_index, test_index) in enumerate(shuf.split(X, y)):          
         X_train = X[train_index]
         y_train = y[train_index]
         X_test = X[test_index]
@@ -345,6 +345,7 @@ if __name__== '__main__' :
         y_pred, y_prob = KNN.predict(X_test)
     
         print(f'{i+1} de 5 finalizado/s, {round((time.time()-s)/60,2)} minutos')
+        print(len(y_pred))
 
         result = pd.DataFrame({'X_test': np.array(X_test), 'y_real': y_test, 
         'y_pred': y_pred, 'y_prob': y_prob})
@@ -352,4 +353,4 @@ if __name__== '__main__' :
     
         path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}_weighted_v2.csv'
         result.to_csv(path_file)
-    
+        

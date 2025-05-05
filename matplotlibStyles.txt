@@ -13,7 +13,7 @@ grid.linestyle: :
 grid.linewidth: 0.5
 
 # Paleta de colores
-axes.prop_cycle: cycler('color', ['cadetblue', 'mediumorchid', 'darkseagreen', 'slategrey', 'coral', 'peru'])
+axes.prop_cycle: cycler('color', ['darkblue', 'mediumorchid', 'darkseagreen', 'slategrey', 'coral', 'peru'])
 
 # Tamaño de la figura
 figure.figsize: 18, 12

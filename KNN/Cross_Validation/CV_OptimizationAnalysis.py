@@ -46,5 +46,5 @@ def CV_scores(numero_vecinos: int, cm: bool = True,
     return dataframes, score
     
 if __name__=='__main__': 
-    data, score = CV_scores(1, cm = True, cv_iter=[0,1,2,3,4])
-    print(f'Recall score 1 vecinos v2: {round(score,2)}')
+    data, score = CV_scores(1, cm = True, cv_iter=[0,1,2,3])
+    print(f'Recall score 3 vecinos v2: {round(score,2)}')

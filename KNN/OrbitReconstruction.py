@@ -20,7 +20,7 @@ from CorteVignes import _filtradoVignes
 
 total_data_1vecino, score_1vecino = CV_scores(1, cm = False, cv_iter = [0,1,2,3])
 
-#SOLO PARA TEST DATA  
+#SOLO PARA TEST DATA  v1
 def testData(iteracion, train: bool = True) -> pd.DataFrame:
     if train:
         data = trainingData(['Group1','Group2','Group3','Group4'], use_cache=True)
