@@ -14,7 +14,7 @@ import sys
 import os
 import csv
 
-#plt.style.use("./matplotlibStyles.txt")
+plt.style.use("./matplotlibStyles.txt")
 
 def n_orbita(YYYY: str, MM: str, DD: str) -> int:
   cache_dir = os.path.join(os.path.dirname(__file__),'cache/') 
@@ -90,35 +90,25 @@ def graficadora(YYYY, MM, DD):
 
   Path = f'/app/DatosCrudos/datos_campo_magnetico_ventana'
   n = n_orbita(YYYY, MM, DD)
-  for orbita in range(1, n+1):
+  fig, axs = plt.subplots(4, 2, figsize=(20, 14), layout='constrained')
+  for orbita, ax in zip(range(1, n+1), axs):
     archivoDestino = os.path.join(Path, f"ventana_{DD}-{MM}-{YYYY}_orbita{orbita}.csv")
     df = pd.read_csv(archivoDestino)
     t, B, Bx, By, Bz, r_sat = df.time, df.mod_B, df.Bx, df.By, df.Bz, df.r_sat
-
-    fig, (ax1, ax3) = plt.subplots(2, 1, figsize=(20, 14))
-    ax1.set_title(f'{DD}-{MM}-{YYYY}')
-    ax2 = ax1.twinx()
-    ax4 = ax3.twinx()
-    ax1.plot(t, B)
-    ax2.plot(t, r_sat, '-', alpha = 0.7)
-    ax1.set_xlabel('tiempo [hs]')
-    ax1.set_ylabel('|B| [nT]')
-    ax2.set_ylabel('altura [Km]')
-    ax1.grid()
-    ax3.plot(t, Bx, label='B en X')
-    ax3.plot(t, By, label='B en Y')
-    ax3.plot(t, Bz, label='B en Z')
-    ax3.legend()
-    ax4.plot(t, r_sat, '-', alpha = 0.7)
-    ax3.set_xlabel('tiempo [hs]')
-    ax3.set_ylabel('Campo Magnetico [nT]')
-    ax4.set_ylabel('altura [Km]')
-    ax3.grid()
-    
-    PathFig = '/app/temp'
-    if not os.path.exists(PathFig):
-      os.makedirs(PathFig)
-    plt.savefig(f'/app/temp/PromedioPorVentana/{YYYY}_{MM}_{DD}_ventana_{orbita}')
+    ax[0].plot(t, B, label = '|B|', color='black')
+    ax[1].plot(t, Bx, label=r'$B_X$')
+    ax[1].plot(t, By, label=r'$B_Y$')
+    ax[1].plot(t, Bz, label=r'$B_Z$')
+  
+  axs[-1][0].set_xlabel('Tiempo (hs)')
+  axs[-1][1].set_xlabel('Tiempo (hs)')
+  fig.supylabel('Campo Magnético (nT)', fontsize=28)
+  handles1, labels1 = axs[0,1].get_legend_handles_labels()
+  handles2, labels2 = axs[0,0].get_legend_handles_labels()
+  all_handles = handles1 + handles2
+  all_labels = labels1 + labels2
+  fig.legend(all_handles, all_labels, bbox_to_anchor=(1,0.6), loc=2, borderaxespad=0., ncol=1)
+  plt.savefig(f'temp_{YYYY}_{MM}_{DD}', bbox_inches='tight')
 
 if __name__== '__main__' :
 
@@ -131,5 +121,4 @@ if __name__== '__main__' :
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
     orbita = sys.argv[2]
-    df = filtrarVentana(YYYY, MM, DD, int(orbita))
-    print(df)  
+    graficadora(YYYY, MM, DD)
