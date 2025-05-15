@@ -9,17 +9,17 @@ sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
 from DescargaDatosB import descargarDatosCampo
 
 def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de datos de gabi que quiera usar
-    date_tot = pd.DataFrame(columns = ['YYYY', 'MM', 'DD', 'MPB_time'])
     tot_drop = 0
     for group in groups:
         path = f'/app/Training_Data/MAVEN_MPB_Data_{group}.csv'
-        col_names = ['date','MPB_time']
-        df = pd.read_csv(path, skiprows=1, header=None, sep=',' ,lineterminator='\n', usecols=[0,2]).dropna()
+        col_names = ['date','BS_time','MPB_time']
+        df = pd.read_csv(path, skiprows=1, header=None, sep=',' ,lineterminator='\n', usecols=[0,1,2]).dropna()
         df.columns = col_names
         dates = df.date.str.split('-')
         path_cache_not_avaiable = f'/app/PreprocesamientoDatos/cache/not_avaiable_date.csv'
         dates_not_avaiable = pd.read_csv(path_cache_not_avaiable, skiprows=0, header=None, sep=',', lineterminator='\n', names = ['YYYY', 'MM', 'DD'] ,dtype=int)
         df.MPB_time = df.MPB_time.str.split(':').apply(lambda t: int(t[0])+int(t[1])/60+int(t[2])/3600)
+        df.BS_time = df.BS_time.str.split(':').apply(lambda t: int(t[0])+int(t[1])/60+int(t[2])/3600)
 
         idxs_to_drop = []
         for idx, date in dates.items():
@@ -42,10 +42,10 @@ def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de
 
         date_MPB = pd.DataFrame(dates.tolist(), columns = ['YYYY', 'MM', 'DD'])
         date_MPB['MPB_time'] = df.MPB_time
-        date_tot = pd.concat([date_tot, date_MPB.dropna()])
+        date_MPB['BS_time'] = df.BS_time
         
     print(f'Ignoradas {tot_drop} por cache')
-    return date_tot.reset_index()
+    return date_MPB
 
 def cargarData(file_name: str):
     date_tot = pd.DataFrame(columns = ['YYYY', 'MM', 'DD'])
