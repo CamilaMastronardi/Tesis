@@ -312,26 +312,35 @@ class KNN_timeSeries(BaseEstimator, ClassifierMixin):
                 setattr(self, param, value)
             return self
 
-if __name__== '__main__' :
-    # Descargar Training data
-    print('Descargando y ordenando data de entrenamiento')
-    start_time = time.time()
-    data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'], use_cache = True)
-    end_time = time.time()
-    execution_time = end_time - start_time
+def cross_validation_KNN(n_splits: int, training_data, mww: int, K: int, use_weights: bool, folder: str) -> None:   
+    """
+    Performs cross-validation for KNN classifier using DTW distance metric
+    Arguments
+    ---------
+    n_splits : int
+        Number of splits for cross-validation
+    training_data : pd.DataFrame
+        DataFrame containing training data with columns 'B' and 'tipo'
+    mww : int   
+        Maximum warping window for DTW
+    K : int
+        Number of neighbors for KNN
+    use_weights : bool  
+        If True, use weights for KNN
+    folder : str    
+        Folder name for saving results
+    """
+    # Crear carpeta si no existe
+    if not os.path.exists(f'/app/KNN/Cross_Validation/{folder}'):
+        os.makedirs(f'/app/KNN/Cross_Validation/{folder}')
 
-    print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
+    X = training_data['B']
+    y = training_data['tipo'].to_numpy().astype(int)
 
-    mww = 1000
-    K = 1
-
-    X = data_KNN_completed['B']
-    y = data_KNN_completed['tipo'].to_numpy().astype(int)
-
-    shuf = ShuffleSplit(n_splits=5, test_size=0.2, random_state= 50)
+    shuf = ShuffleSplit(n_splits=n_splits, test_size=1/n_splits, random_state= 50)
 
     dtw_calculator = DTW(max_warping_window = mww)
-    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K, use_weights=False)
+    KNN = KNN_timeSeries(metric_calculator = dtw_calculator, n_neighbors = K, use_weights=use_weights)
     
     s = time.time()
 
@@ -351,6 +360,17 @@ if __name__== '__main__' :
         'y_pred': y_pred, 'y_prob': y_prob})
         result['X_test'] = result['X_test'].apply(lambda x: ', '.join(map(str, x)))
     
-        path_file = f'/app/KNN/Cross_Validation/Resultados/CV_{K}vecinos_{mww}DTW_{i}_weighted_v2.csv'
+        weighted_string = 'weighted' if use_weights else 'unweighted'
+        path_file = f'/app/KNN/Cross_Validation/{folder}/CV_{K}vecinos_{mww}DTW_{i}_{weighted_string}.csv'
         result.to_csv(path_file)
         
+if __name__== '__main__' :
+    print('Descargando y ordenando data de entrenamiento')
+    start_time = time.time()
+    data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'], use_cache = True)
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
+
+    cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=1, use_weights=True, folder='Resultados')
