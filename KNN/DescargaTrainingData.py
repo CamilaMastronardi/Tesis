@@ -10,6 +10,7 @@ from DescargaDatosB import descargarDatosCampo
 
 def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de datos de gabi que quiera usar
     tot_drop = 0
+    date_tot = pd.DataFrame()
     for group in groups:
         path = f'/app/Training_Data/MAVEN_MPB_Data_{group}.csv'
         col_names = ['date','BS_time','MPB_time']
@@ -43,9 +44,10 @@ def cargarTrainingData(groups: list[str]): #group es el nombre de la pestaña de
         date_MPB = pd.DataFrame(dates.tolist(), columns = ['YYYY', 'MM', 'DD'])
         date_MPB['MPB_time'] = df.MPB_time
         date_MPB['BS_time'] = df.BS_time
+        date_tot = pd.concat([date_tot, date_MPB], ignore_index=True)
         
     print(f'Ignoradas {tot_drop} por cache')
-    return date_MPB
+    return date_tot.reset_index(drop=True)
 
 def cargarData(file_name: str):
     date_tot = pd.DataFrame(columns = ['YYYY', 'MM', 'DD'])

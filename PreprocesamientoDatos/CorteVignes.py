@@ -23,7 +23,7 @@ def cilindricas(L: list):
     return rho, theta
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
-def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int = 30) -> pd.DataFrame:
+def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int = 100) -> pd.DataFrame:
     PathDataVignes = '/app/AnalisisVignes/LVignes'
     archivo = os.path.join(PathDataVignes, "L_vignes")
 
@@ -43,7 +43,7 @@ def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int = 
 
     return data
 
-def filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, use_cache: bool = True, band_size: int = 30):
+def filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, use_cache: bool = True, band_size: int = 50):
     
     CorteVignes_cache = os.path.join(os.path.dirname(__file__),'cache/CorteVignes') 
     path = os.path.join(CorteVignes_cache, f'{YYYY}_{MM}_{DD}-{orbita}-bs={band_size}.csv')
@@ -71,7 +71,7 @@ if __name__== '__main__' :
     L = 0.96
     deltaL=50*L/100
     theta = np.linspace(0, np.pi/2,100)
-    df = _filtradoVignes(YYYY, MM, DD, int(orbita), band_size=50)
+    df = _filtradoVignes(YYYY, MM, DD, int(orbita), band_size=30)
     r_max = rVignes(theta,L+deltaL)
     r_min = rVignes(theta,L-deltaL)
     x_max, y_max = r_max*(np.cos(theta), np.sin(theta))

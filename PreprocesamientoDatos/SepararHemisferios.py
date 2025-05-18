@@ -23,7 +23,7 @@ def separarHemisferios(YYYY: str, MM: str, DD: str) -> pd.DataFrame:
     df['hemisferio'] = latitud['cambio'].cumsum() # Creo columna para hemisferios
 
     # Filtro filas donde la latitud es mayor al ecuador
-    df_latitud_positivas = df[(latitud[0]>0) | (df['posX'] > 1000)]
+    df_latitud_positivas = df[(latitud[0]>-500) | (df['posX'] > 1000)]
 
     df_latitud_positivas = df_latitud_positivas.groupby('orbita').filter(tieneEspaciadoTemporal)
 

@@ -104,7 +104,7 @@ def is_mpb_orbit(orbit_df: pd.DataFrame, mpb_times: pd.DataFrame, delta_sec: int
         has_mpb = has_mpb or (abs(orbit_df["time"] - time) < (delta_sec / 3600)).any()
     return has_mpb
 
-def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame, is_MPB_orbit: bool) -> pd.DataFrame:
+def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame, is_MPB_orbit: bool|int) -> pd.DataFrame:
     data.loc[j, ["Fecha", "orbita", "tipo", "B", "Bx", "By", "Bz", "time", "posX", "posY", "posZ"]] = [
         f"{YYYY}-{MM}-{DD}", orbita, int(is_MPB_orbit), df["mod_B"].to_numpy(), df["Bx"].to_numpy(), df["By"].to_numpy(),
          df["Bz"].to_numpy(), df["time"].to_numpy(), 
