@@ -11,6 +11,7 @@ import seaborn as sns
 
 #para estadistica
 import sklearn.metrics
+from sklearn.metrics import recall_score
 from sklearn.metrics import confusion_matrix
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
@@ -23,7 +24,7 @@ def CV_scores(numero_vecinos: int, cm: bool = True,
     dataframes = {} 
     total_data = pd.DataFrame()
     for i in cv_iter:
-        path = f'KNN/Cross_Validation/Resultados3clusters/CV_{numero_vecinos}vecinos_1000DTW_{i}_unweighted.csv'
+        path = f'KNN/Cross_Validation/Resultados3clusters/CV_{numero_vecinos}vecinos_1000DTW_{i}_weighted.csv'
         data = pd.read_csv(path, index_col = 0)
         dataframes[f'iteration_{i}'] = pd.DataFrame(data)
 
@@ -42,9 +43,11 @@ def CV_scores(numero_vecinos: int, cm: bool = True,
         plt.show()
         plt.close()
 
-    score = score_method(total_data['y_real'], total_data['y_pred'], average = 'macro')
-    return dataframes, score
+    y_true, y_pred = total_data['y_real'], total_data['y_pred']
+    recall_weighted = recall_score(y_true, y_pred, average='weighted')
+    return dataframes, recall_weighted
     
 if __name__=='__main__': 
-    data, score = CV_scores(1, cm = True)
-    print(f'Recall score 3 vecinos v2: {round(score,2)}')
+    vecinos = 30
+    data, recall_weighted = CV_scores(vecinos, cm = True)
+    print(f'Recall weighted score {vecinos} vecinos v2: {round(recall_weighted,2)}')
