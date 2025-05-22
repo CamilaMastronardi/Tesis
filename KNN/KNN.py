@@ -49,13 +49,14 @@ def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFr
     return data
 
 def outbound_to_inbound(df):
-    posx = df['posX'][0]
+    posx = df['posX']
     posXdt = np.gradient(posx)
     type = np.mean(posXdt)
     if type>=0:
         return df
     if type<0: 
-        return df.iloc[::-1]
+        df_inverted = df.loc[::-1]
+        return df_inverted
 
 def completeData(groups_of_dates: str, use_cache: bool) -> pd.DataFrame: 
     """
@@ -111,22 +112,6 @@ def data_for_train(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.Data
         df["posX"].to_numpy(), df["posY"].to_numpy(), df["posZ"].to_numpy(),
     ]
     return data
-
-def trainingData(groups_of_dates: list[str], use_cache: bool) -> pd.DataFrame: 
-    MPB_crosses_df = cargarTrainingData(groups_of_dates)
-    data_to_complete = pd.DataFrame(columns=["Fecha", "orbita", "tipo", "B", "Bx", "By", 
-                                             "Bz", "time", "posX", "posY", "posZ"])
-
-    for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
-        orbitas = n_orbita(YYYY, MM, DD)
-        for n in range(1, orbitas): 
-            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache)
-            if len(df_not_marked)!=0:
-                time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
-                is_MPB_orbit = is_mpb_orbit(df_not_marked, time_MPB, 3)
-                data_for_train(len(data_to_complete), YYYY, MM, DD, n, df_not_marked, data_to_complete, is_MPB_orbit)
-                data_KNN_completed = outbound_to_inbound(data_to_complete)
-    return data_KNN_completed
 
 #DTW
 
