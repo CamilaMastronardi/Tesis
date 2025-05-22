@@ -23,18 +23,19 @@ def cilindricas(L: list):
     return rho, theta
 
 #defino funcion que se queda solo con datos entre el deltaL que defini
-def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int) -> pd.DataFrame:
+def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size_min : int, band_size_max : int) -> pd.DataFrame:
     PathDataVignes = '/app/AnalisisVignes/LVignes'
     archivo = os.path.join(PathDataVignes, "L_vignes")
 
     data = filtrarVentana(YYYY, MM, DD, orbita).reset_index() #le hago un reset index porque por el tratamiento a los datos los indices estaban mal
     posX, posY, posZ = data['posX'], data['posY'], data['posZ']
     rho, theta = cilindricas([posX,posY,posZ])
-    deltaL = L*band_size/100
+    deltaL_min = L*band_size_min/100
+    deltaL_max = L*band_size_max/100
 
     for (angulo,i) in zip(theta,range(len(theta))): 
-        rho_max = rVignes(angulo,L+deltaL)
-        rho_min = rVignes(angulo,L-deltaL)
+        rho_max = rVignes(angulo,L+deltaL_max)
+        rho_min = rVignes(angulo,L-deltaL_min)
 
         if rho.iloc[i] > rho_max or rho.iloc[i] < rho_min: #si se va de los limites
             data = data.drop(i)
@@ -43,16 +44,20 @@ def _filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, band_size : int) -
 
     return data
 
-def filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, use_cache: bool = True, band_size: int = 50):
+def filtradoVignes(YYYY: str, MM: str, DD: str, orbita: int, use_cache: bool = True, band_size_min: int = 50, band_size_max: int = 50):
     
     CorteVignes_cache = os.path.join(os.path.dirname(__file__),'cache/CorteVignes') 
-    path = os.path.join(CorteVignes_cache, f'{YYYY}_{MM}_{DD}-{orbita}-bs={band_size}.csv')
+    if band_size_min == band_size_max:
+        band_size_string = f'{band_size_max}' 
+    else:
+        band_size_string = f'{band_size_max}_{band_size_min}'
+    path = os.path.join(CorteVignes_cache, f'{YYYY}_{MM}_{DD}-{orbita}-bs={band_size_string}.csv')
     if use_cache and os.path.exists(path):
         df = pd.read_csv(path)
         return df
     else: 
         os.makedirs(CorteVignes_cache, exist_ok=True)
-        df = _filtradoVignes(YYYY, MM, DD, orbita, band_size)
+        df = _filtradoVignes(YYYY, MM, DD, orbita, band_size_min, band_size_max)
         df.to_csv(path)
         return df
     
@@ -71,17 +76,17 @@ if __name__== '__main__' :
     L = 0.96
     deltaL=50*L/100
     theta = np.linspace(0, np.pi/2,100)
-    df = _filtradoVignes(YYYY, MM, DD, int(orbita), band_size=50)
-    r_max = rVignes(theta,L+deltaL)
-    r_min = rVignes(theta,L-deltaL)
-    x_max, y_max = r_max*(np.cos(theta), np.sin(theta))
-    x_min, y_min = r_min*(np.cos(theta), np.sin(theta))
+    df_1 = filtradoVignes(YYYY, MM, DD, int(orbita), band_size_min=50, band_size_max=150)
+    df_2 = filtradoVignes(YYYY, MM, DD, int(orbita), band_size_min=50, band_size_max=50)
 
-    x, y, z = df['posX'],df['posY'],df['posZ']
-    rho, angulo = cilindricas([x,y,z])
-    x_data = rho*np.cos(angulo)
-    y_data = rho*np.sin(angulo)
-    plt.plot(x_data, y_data)
-    plt.plot(x_min,y_min, color='pink')
-    plt.plot(x_max,y_max, color = 'pink')
+    fig = plt.figure(figsize=(15, 10))
+    time = df_1['time']
+    B = df_1['mod_B']
+    time2 = df_2['time']
+    B2 = df_2['mod_B']
+    plt.plot(time, B)
+    plt.ylabel(r'|$B_{3C}$| (nT)', fontsize = 32)
+    plt.xlabel('Time (hs)', fontsize = 32)
+    plt.xticks(fontsize = 28)
+    plt.yticks(fontsize = 28)
     plt.savefig('temp.png')

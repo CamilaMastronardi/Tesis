@@ -31,6 +31,7 @@ def trainingDataBinario(groups_of_dates: list[str], use_cache: bool, mins: int) 
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
             df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache, 50)
+            print(len(df_not_marked['posX']))
             time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
             for mpb in time_MPB:
                 if is_orbit_clasified(df_not_marked, mpb):
@@ -55,6 +56,6 @@ if __name__== '__main__' :
 
     print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
 
-    for k in range(1, 6):
+    for k in range(10, 20, 2):
         cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=k, use_weights=True, folder = 'ResultadosBinario_2min')   
 
