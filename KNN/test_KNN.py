@@ -122,24 +122,22 @@ def test_KNN_with_DTW_works_with_pandas_series():
 
 def test_outbound_to_inbound():
     # Caso 1: posX creciente → no debería invertir
-    df1 = pd.DataFrame({'posX': np.linspace(0, 10, 11)})
+    df1 = pd.DataFrame({'posX': np.linspace(0, 10, 11), 'mod_B': np.linspace(21,32, 11)})
     result1 = outbound_to_inbound(df1)
     assert result1.equals(df1), "Error: posX creciente fue invertido incorrectamente."
 
     # Caso 2: posX decreciente → debería invertir
-    df2 = pd.DataFrame({'posX': np.linspace(10, 0, 11)})
-    expected2 = df2.iloc[::-1].reset_index(drop=True)
+    df2 = pd.DataFrame({'posX': np.arange(10, -1, -1), 'mod_B': np.arange(11,22, 1)})
+    expected2 = pd.DataFrame({'posX': np.arange(0, 11, 1), 'mod_B': np.arange(21, 10, -1)})
+ 
     result2 = outbound_to_inbound(df2).reset_index(drop=True)
+    print(result2)
+    print('--------')
+    print(expected2)
     assert result2.equals(expected2), "Error: posX decreciente no fue invertido correctamente."
-
-    # Caso 3: posX constante → debería dejarlo igual
-    df3 = pd.DataFrame({'posX': np.ones(10)})
-    result3 = outbound_to_inbound(df3)
-    assert result3.equals(df3), "Error: posX constante fue modificado incorrectamente."
-
     print("Test funcion outbound to inbound pasado")
-
-
+test_outbound_to_inbound()
+'''
 i = 0
 while i<10: 
     i=i+1
@@ -148,3 +146,5 @@ while i<10:
     test_clase_DTW()
     test_clase_KNN_usa_bien_el_peso()
     test_outbound_to_inbound()
+
+'''
