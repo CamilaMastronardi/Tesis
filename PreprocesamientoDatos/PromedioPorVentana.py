@@ -120,5 +120,12 @@ if __name__== '__main__' :
   if len(sys.argv) == 3:
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
-    orbita = sys.argv[2]
-    graficadora(YYYY, MM, DD)
+    orbita = int(sys.argv[2])
+    datos = filtrarVentana(YYYY, MM, DD, orbita)
+    x = np.array(datos['posX'])
+    y = np.array(datos['posY'])
+    z = np.array(datos['posZ'])
+    r = []
+    for i in range(1,len(x)):
+      r.append(np.sqrt((x[i-1]-x[i])**2+(y[i-1]-y[i])**2 +(z[i-1]-z[i])**2))
+    print(np.mean(r))

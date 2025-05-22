@@ -24,7 +24,7 @@ def CV_scores(numero_vecinos: int, cm: bool = True,
     dataframes = {} 
     total_data = pd.DataFrame()
     for i in cv_iter:
-        path = f'KNN/Cross_Validation/Resultados3clusters/CV_{numero_vecinos}vecinos_1000DTW_{i}_weighted.csv'
+        path = f'KNN/Cross_Validation/Resultados3clusters_2min/CV_{numero_vecinos}vecinos_1000DTW_{i}_weighted.csv'
         data = pd.read_csv(path, index_col = 0)
         dataframes[f'iteration_{i}'] = pd.DataFrame(data)
 
@@ -39,7 +39,7 @@ def CV_scores(numero_vecinos: int, cm: bool = True,
         plt.title(f'{numero_vecinos} vecinos', fontsize = 18)
         plt.xlabel("Predicción KNN", fontsize = 14)
         plt.ylabel("Clasificación manual", fontsize = 14)
-        plt.savefig(f'KNN/Cross_Validation/Figuras_Cross_Val/{numero_vecinos}vecinos_total_weighted_v2.png')
+        plt.savefig(f'temp.png')
         plt.show()
         plt.close()
 
@@ -48,6 +48,6 @@ def CV_scores(numero_vecinos: int, cm: bool = True,
     return dataframes, recall_weighted
     
 if __name__=='__main__': 
-    vecinos = 30
+    vecinos = 26
     data, recall_weighted = CV_scores(vecinos, cm = True)
     print(f'Recall weighted score {vecinos} vecinos v2: {round(recall_weighted,2)}')

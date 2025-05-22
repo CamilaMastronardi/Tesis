@@ -7,6 +7,7 @@ from matplotlib.patches import Wedge
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(os.path.join(root_dir, 'PreprocesamientoDatos'))
+plt.style.use("./matplotlibStyles.txt") 
 from AcomodarDatosB import acomodarDatos
 
 
@@ -64,41 +65,100 @@ def pos():
 
     return pos_MPB
 
-pos_MPB = pos()
 
 def graficoDeltaL(bandsize: int):
-    rho_MPB, theta_MPB = cilindricas(pos_MPB)
-    x_MPB = pos_MPB[0]
+    pos_MPB = pos()
+    rho_MPB_1, theta_MPB = cilindricas(pos_MPB)
+    rho_MPB = rho_MPB_1/radio_marte_prom
+    x_MPB = np.array(pos_MPB[0])/radio_marte_prom
 
     theta = np.linspace(-np.pi, np.pi, 100)
-    deltaL = L*bandsize/100
-    r = rVignes(theta, L)
-    r_max = rVignes(theta,L+deltaL)
-    r_min = rVignes(theta,L-deltaL)
-    x,y = r*(np.cos(theta), np.sin(theta))
-    x_max, y_max = r_max*(np.cos(theta), np.sin(theta))
-    x_min, y_min = r_min*(np.cos(theta), np.sin(theta))
+    deltaL = L * bandsize / 100
+    r = rVignes(theta, L)/radio_marte_prom
+    r_max = rVignes(theta, L + deltaL)/radio_marte_prom
+    r_min = rVignes(theta, L - deltaL)/radio_marte_prom
+    
+    x, y = r * (np.cos(theta), np.sin(theta))
+    x_max, y_max = r_max * (np.cos(theta), np.sin(theta))
+    x_min, y_min = r_min * (np.cos(theta), np.sin(theta))
 
-    r_BS = BSVignes(theta)
-    x_BS, y_BS = r_BS*(np.cos(theta), np.sin(theta))
+    r_BS = BSVignes(theta)/radio_marte_prom
+    x_BS, y_BS = r_BS * (np.cos(theta), np.sin(theta))
 
     largo1 = 20
     largo2 = 12
     fig, ax = plt.subplots(figsize=(largo1, largo2))
-    ax.plot(radio_marte_prom*np.cos(theta),radio_marte_prom*np.sin(theta), color = 'black')
-    ax.scatter(x_MPB,rho_MPB, zorder = 100)
-    wedge = Wedge((0, 0), radio_marte_prom, -90, 90, facecolor='black', edgecolor='none')
-    ax.add_patch(wedge)
-    ax.plot(x,y, color='red')
-    ax.plot(x_BS,y_BS, color='grey')
-    ax.plot(x_min,y_min, color='pink')
-    ax.plot(x_max,y_max, color = 'pink')
-    ax.set_xlim(-3*radio_marte_prom,2*radio_marte_prom)
-    ax.set_ylim(-0.5*radio_marte_prom*largo2/largo1,(4.5*radio_marte_prom)*largo2/largo1)
-    plt.grid()
-    plt.savefig('temp.png')
+    
+    ax.plot(np.cos(theta), np.sin(theta), color='black')
+    ax.scatter(x_MPB, rho_MPB, zorder=100, color = 'black', s=100, label='Posición MPB entrenamiento')
 
-graficoDeltaL(50)
+    # Planeta en negro
+    wedge = Wedge((0, 0), 1, 90, -90, facecolor='black', edgecolor='none')
+    ax.add_patch(wedge)
+
+    # Relleno entre las curvas rosas (deltaL)
+    ax.fill(np.concatenate([x_max, x_min[::-1]]), np.concatenate([y_max, y_min[::-1]]), color='pink',
+        alpha=0.4,zorder=0,label='Región de interes')
+
+    ax.plot(x, y, lw=2 ,color='mediumorchid', label='Vignes MPB')
+    ax.plot(x_BS, y_BS, lw=2, color='grey', label='Vignes BS')
+    ax.plot(x_min, y_min, color='pink')
+    ax.plot(x_max, y_max, color='pink')
+    ax.legend(loc=[1.01,0.75])
+    ax.set_ylabel(r'$\sqrt{y^2+z^2}$')
+    ax.set_xlabel(r'$x_{MSO}$')
+
+    ax.set_xlim(-3, 2)
+    ax.set_ylim(-0.5 * largo2 / largo1, (4.5) * largo2 / largo1)
+    plt.savefig('temp.png', bbox_inches='tight')
+
+#graficoDeltaL(50)
+
+def graficoDeltaL(bandsize: int):
+    pos_MPB = pos()
+    rho_MPB_1, theta_MPB = cilindricas(pos_MPB)
+    rho_MPB = rho_MPB_1/radio_marte_prom
+    x_MPB = np.array(pos_MPB[0])/radio_marte_prom
+
+    theta = np.linspace(-np.pi, np.pi, 100)
+    deltaL = L * bandsize / 100
+    r = rVignes(theta, L)/radio_marte_prom
+    r_max = rVignes(theta, L + deltaL)/radio_marte_prom
+    r_min = rVignes(theta, L - deltaL)/radio_marte_prom
+    
+    x, y = r * (np.cos(theta), np.sin(theta))
+    x_max, y_max = r_max * (np.cos(theta), np.sin(theta))
+    x_min, y_min = r_min * (np.cos(theta), np.sin(theta))
+
+    r_BS = BSVignes(theta)/radio_marte_prom
+    x_BS, y_BS = r_BS * (np.cos(theta), np.sin(theta))
+
+    largo1 = 20
+    largo2 = 12
+    fig, ax = plt.subplots(figsize=(largo1, largo2))
+    
+    ax.plot(np.cos(theta), np.sin(theta), color='black')
+    ax.scatter(x_MPB, rho_MPB, zorder=100, color = 'black', s=100, label='Posición MPB entrenamiento')
+
+    # Planeta en negro
+    wedge = Wedge((0, 0), 1, 90, -90, facecolor='black', edgecolor='none')
+    ax.add_patch(wedge)
+
+    # Relleno entre las curvas rosas (deltaL)
+    ax.fill(np.concatenate([x_max, x_min[::-1]]), np.concatenate([y_max, y_min[::-1]]), color='pink',
+        alpha=0.4,zorder=0,label='Región de interes')
+
+    ax.plot(x, y, lw=2 ,color='mediumorchid', label='Vignes MPB')
+    ax.plot(x_BS, y_BS, lw=2, color='grey', label='Vignes BS')
+    ax.plot(x_min, y_min, color='pink')
+    ax.plot(x_max, y_max, color='pink')
+    ax.legend(loc=[1.01,0.75])
+    ax.set_ylabel(r'$\sqrt{y^2+z^2}$')
+    ax.set_xlabel(r'$x_{MSO}$')
+
+    ax.set_xlim(-3, 2)
+    ax.set_ylim(-0.5 * largo2 / largo1, (4.5) * largo2 / largo1)
+    plt.savefig('temp.png', bbox_inches='tight')
 
 def test_cilindricas():
     a = 3  # semieje mayor en x
@@ -127,4 +187,176 @@ def test_cilindricas():
     plt.scatter(x,rho)
     plt.savefig('tempcil2.png')
 
-test_cilindricas()
+#test_cilindricas()
+
+def graficoDeltaL(bandsize: int):
+    pos_MPB = pos()
+    rho_MPB_1, theta_MPB = cilindricas(pos_MPB)
+    rho_MPB = rho_MPB_1/radio_marte_prom
+    x_MPB = np.array(pos_MPB[0])/radio_marte_prom
+
+    theta = np.linspace(-np.pi, np.pi, 100)
+    deltaL = L * bandsize / 100
+    r = rVignes(theta, L)/radio_marte_prom
+    r_max = rVignes(theta, L + deltaL)/radio_marte_prom
+    r_min = rVignes(theta, L - deltaL)/radio_marte_prom
+    
+    x, y = r * (np.cos(theta), np.sin(theta))
+    x_max, y_max = r_max * (np.cos(theta), np.sin(theta))
+    x_min, y_min = r_min * (np.cos(theta), np.sin(theta))
+
+    r_BS = BSVignes(theta)/radio_marte_prom
+    x_BS, y_BS = r_BS * (np.cos(theta), np.sin(theta))
+
+    largo1 = 20
+    largo2 = 12
+    fig, ax = plt.subplots(figsize=(largo1, largo2))
+    
+    ax.plot(np.cos(theta), np.sin(theta), color='black')
+    ax.scatter(x_MPB, rho_MPB, zorder=100, color = 'black', s=100, label='Posición MPB entrenamiento')
+
+    # Planeta en negro
+    wedge = Wedge((0, 0), 1, 90, -90, facecolor='black', edgecolor='none')
+    ax.add_patch(wedge)
+
+    # Relleno entre las curvas rosas (deltaL)
+    ax.fill(np.concatenate([x_max, x_min[::-1]]), np.concatenate([y_max, y_min[::-1]]), color='pink',
+        alpha=0.4,zorder=0,label='Región de interes')
+
+    ax.plot(x, y, lw=2 ,color='mediumorchid', label='Vignes MPB')
+    ax.plot(x_BS, y_BS, lw=2, color='grey', label='Vignes BS')
+    ax.plot(x_min, y_min, color='pink')
+    ax.plot(x_max, y_max, color='pink')
+    ax.legend(loc=[1.01,0.75])
+    ax.set_ylabel(r'$\sqrt{y^2+z^2}$')
+    ax.set_xlabel(r'$x_{MSO}$')
+
+    ax.set_xlim(-3, 2)
+    ax.set_ylim(-0.5 * largo2 / largo1, (4.5) * largo2 / largo1)
+    plt.savefig('temp.png', bbox_inches='tight')
+
+def graficoOrbita():
+    theta = np.linspace(-np.pi, np.pi, 200)
+    theta_2 = np.linspace(np.pi/2,2, 100)
+    fig, ax = plt.subplots()
+
+    # Círculo que representa Marte
+    ax.plot(np.cos(theta), np.sin(theta), color='black')
+
+    # Hemisferio inferior en negro
+    wedge = Wedge((0, 0), 1, 90, -90, facecolor='black', edgecolor='none', zorder=100)
+    ax.add_patch(wedge)
+
+    # Zona eliminada
+    deleted_zone = Wedge((0, 0), 100, 90, -90, facecolor='grey', alpha=0.3, edgecolor='none', zorder=50, label='Región descartada')
+    ax.add_patch(deleted_zone)
+
+    # Eje x_MSO (horizontal hacia la derecha, darkblue)
+    ax.annotate(
+        '', xy=(2, 0), xytext=(0, 0),
+        arrowprops=dict(arrowstyle='->', linewidth=2, color='mediumorchid'),
+        zorder=150
+    )
+    ax.text(2.1, 0, r'$x_{MSO}$', color='mediumorchid', va='center', ha='left', fontsize=24)
+
+    # Eje z_PC (-25° respecto de la vertical, mediumorchid)
+    ang_deg = -25
+    ang_rad = np.radians(ang_deg)
+    zpc_x = 2.5 * np.sin(ang_rad)
+    zpc_y = 2.5 * np.cos(ang_rad)
+
+    ax.annotate(
+        '', xy=(zpc_x, zpc_y), xytext=(0, 0),
+        arrowprops=dict(arrowstyle='->', linewidth=2, color='darkblue'),
+        zorder=150
+    )
+    ax.text(zpc_x * 1.05, zpc_y * 1.05, r'$z_{PC}$', color='darkblue', va='bottom', ha='left', fontsize=24, zorder=1000)
+
+    linea_ang_rad = np.radians(25)
+    x1 = - np.cos(linea_ang_rad)
+    y1 = - np.sin(linea_ang_rad)
+    x2 = np.cos(linea_ang_rad)
+    y2 = np.sin(linea_ang_rad)
+    ax.plot([x1, x2], [y1, y2], linestyle='--', color='darkblue', linewidth=1.5, zorder=10000)
+
+
+
+    # Ángulo en blanco con respecto a la vertical
+    ax.plot(1/2*np.cos(theta_2), 1/2*np.sin(theta_2), color='white', zorder=1000)
+    ax.text(-0.27, 0.6, r'25°', color='white', zorder=1000, fontsize=16)
+
+    # Limites y estética
+    ax.set_xlim(-3, 3)
+    ax.set_ylim(-3, 3)
+    ax.set_aspect('equal', 'box')
+    plt.legend().set_zorder(1000)
+    ax.set_xlabel(r'$x_{MSO} (RM)$')
+    ax.set_ylabel(r'$\sqrt{y^2+z^2} (RM)$')
+    ax.grid(color='black')
+
+    plt.savefig('temp.png', bbox_inches='tight')
+    plt.show()
+
+graficoOrbita()
+
+def graficoHemisferio():
+    theta = np.linspace(-np.pi, np.pi, 200)
+    theta_2 = np.linspace(np.pi/2,2, 100)
+    fig, ax = plt.subplots()
+
+    # Círculo que representa Marte
+    ax.plot(np.cos(theta), np.sin(theta), color='black')
+
+    # Hemisferio inferior en negro
+    wedge = Wedge((0, 0), 1, 90, -90, facecolor='black', edgecolor='none', zorder=100)
+    ax.add_patch(wedge)
+
+    # Zona eliminada
+    deleted_zone = Wedge((0, 0), 100, 90, 25, facecolor='grey', alpha=0.3, edgecolor='none', zorder=50, label='Región descartada')
+    ax.add_patch(deleted_zone)
+
+    # Eje x_MSO (horizontal hacia la derecha, darkblue)
+    ax.annotate(
+        '', xy=(2, 0), xytext=(0, 0),
+        arrowprops=dict(arrowstyle='->', linewidth=2, color='mediumorchid'),
+        zorder=150
+    )
+    ax.text(2.1, 0, r'$x_{MSO}$', color='mediumorchid', va='center', ha='left', fontsize=24)
+
+    # Eje z_PC (-25° respecto de la vertical, mediumorchid)
+    ang_deg = -25
+    ang_rad = np.radians(ang_deg)
+    zpc_x = 2.5 * np.sin(ang_rad)
+    zpc_y = 2.5 * np.cos(ang_rad)
+
+    ax.annotate(
+        '', xy=(zpc_x, zpc_y), xytext=(0, 0),
+        arrowprops=dict(arrowstyle='->', linewidth=2, color='darkblue'),
+        zorder=150
+    )
+    ax.text(zpc_x * 1.05, zpc_y * 1.05, r'$z_{PC}$', color='darkblue', va='bottom', ha='left', fontsize=24, zorder=1000)
+
+    linea_ang_rad = np.radians(25)
+    x1 = - np.cos(linea_ang_rad)
+    y1 = - np.sin(linea_ang_rad)
+    x2 = np.cos(linea_ang_rad)
+    y2 = np.sin(linea_ang_rad)
+    ax.plot([x1, x2], [y1, y2], linestyle='--', color='darkblue', linewidth=1.5, zorder=10000)
+
+
+
+    # Ángulo en blanco con respecto a la vertical
+    ax.plot(1/2*np.cos(theta_2), 1/2*np.sin(theta_2), color='white', zorder=1000)
+    ax.text(-0.27, 0.6, r'25°', color='white', zorder=1000, fontsize=16)
+
+    # Limites y estética
+    ax.set_xlim(-3, 3)
+    ax.set_ylim(-3, 3)
+    ax.set_aspect('equal', 'box')
+    plt.legend().set_zorder(1000)
+    ax.set_xlabel(r'$x_{MSO} (RM)$')
+    ax.set_ylabel(r'$\sqrt{y^2+z^2} (RM)$')
+    ax.grid(color='black')
+
+    plt.savefig('temp.png', bbox_inches='tight')
+    plt.show()

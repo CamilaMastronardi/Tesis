@@ -348,14 +348,3 @@ def cross_validation_KNN(n_splits: int, training_data, mww: int, K: int, use_wei
         weighted_string = 'weighted' if use_weights else 'unweighted'
         path_file = f'/app/KNN/Cross_Validation/{folder}/CV_{K}vecinos_{mww}DTW_{i}_{weighted_string}.csv'
         result.to_csv(path_file)
-        
-if __name__== '__main__' :
-    print('Descargando y ordenando data de entrenamiento')
-    start_time = time.time()
-    data_KNN_completed = trainingData(['Group1','Group2','Group3','Group4'], use_cache = True)
-    end_time = time.time()
-    execution_time = end_time - start_time
-
-    print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
-
-    cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=1, use_weights=True, folder='Resultados')
