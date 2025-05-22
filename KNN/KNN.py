@@ -327,11 +327,31 @@ def cross_validation_KNN(n_splits: int, training_data, mww: int, K: int, use_wei
         y_pred, y_prob = KNN.predict(X_test)
     
         print(f'{i+1} de 5 finalizado/s, {round((time.time()-s)/60,2)} minutos')
-        print(len(y_pred))
 
-        result = pd.DataFrame({'X_test': np.array(X_test), 'y_real': y_test, 
-        'y_pred': y_pred, 'y_prob': y_prob})
-        result['X_test'] = result['X_test'].apply(lambda x: ', '.join(map(str, x)))
+        Fecha = training_data['Fecha'][train_index]
+        orbita = training_data['orbita'][train_index]
+        times = training_data['time'][train_index]
+        Bx = training_data['Bx'][train_index]
+        By = training_data['By'][train_index]
+        Bz= training_data['Bz'][train_index]
+        posX = training_data['posX'][train_index]
+        posY = training_data['posY'][train_index]
+        posZ = training_data['posZ'][train_index]
+        B = np.array(X_train)
+        tipo_real = y_test
+
+        dict = {"Fecha": Fecha, "orbita": orbita, "tipo": tipo_real, 'pred': y_pred,
+            "B": B, "Bx": Bx, "By": By, "Bz": Bz, "time": times, "posX": posX, "posY": posY, "posZ": posZ}
+
+        result = pd.DataFrame(dict)
+        result['B'] = result['B'].apply(lambda x: ', '.join(map(str, x)))
+        result['Bx'] = result['Bx'].apply(lambda x: ', '.join(map(str, x)))
+        result['By'] = result['By'].apply(lambda x: ', '.join(map(str, x)))
+        result['Bz'] = result['Bz'].apply(lambda x: ', '.join(map(str, x)))
+        result['posX'] = result['posX'].apply(lambda x: ', '.join(map(str, x)))
+        result['posY'] = result['posY'].apply(lambda x: ', '.join(map(str, x)))
+        result['posZ'] = result['posZ'].apply(lambda x: ', '.join(map(str, x)))
+        result['time'] = result['time'].apply(lambda x: ', '.join(map(str, x)))
     
         weighted_string = 'weighted' if use_weights else 'unweighted'
         path_file = f'/app/KNN/Cross_Validation/{folder}/CV_{K}vecinos_{mww}DTW_{i}_{weighted_string}.csv'
