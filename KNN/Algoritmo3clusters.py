@@ -43,7 +43,7 @@ def clusterize(orbit_data: pd.DataFrame, MPB_time: float, BS_time: float) -> lis
         return [SW, magnetosheath, ionosphere]
 
 
-def is_orbit_clasified(orbit_df: pd.DataFrame, mpb_time: float, bs_time: float, delta_sec: int) -> bool:
+def is_orbit_clasified(orbit_df: pd.DataFrame, mpb_time: float) -> bool:
     has_mpb = (orbit_df["time"]).min() < mpb_time and mpb_time < max(orbit_df["time"])
     return has_mpb
 
@@ -55,11 +55,11 @@ def trainingData3Clusters(groups_of_dates: list[str], use_cache: bool, mins: int
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
-            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache)
+            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache, band_size = 100)
             time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
             time_BS = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].BS_time
             for mpb, bs in zip(time_MPB, time_BS):
-                if is_orbit_clasified(df_not_marked, mpb, bs, 3):
+                if is_orbit_clasified(df_not_marked, mpb):
                     SW, magnetosheath, ionosphere = clusterize(df_not_marked, mpb, bs)
                     pedacitos_SW = cut_orbits_in_n_min(SW, mins)
                     pedacitos_magnetosheath = cut_orbits_in_n_min(magnetosheath, mins)
@@ -74,7 +74,7 @@ def trainingData3Clusters(groups_of_dates: list[str], use_cache: bool, mins: int
                     continue
     return data_to_complete
 
-def cut_orbits_in_n_min(data: pd.DataFrame, n: int) -> pd.DataFrame:
+def cut_orbits_in_n_min(data: pd.DataFrame, n: int) -> list[pd.DataFrame]:
     lista_pedacitos = [data[x:x+n*60] for x in range(0, len(data), n*60)]
     result = []
     for pedacito in lista_pedacitos:
