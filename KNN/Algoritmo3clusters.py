@@ -55,7 +55,7 @@ def trainingData3Clusters(groups_of_dates: list[str], use_cache: bool, mins: int
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
-            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache, band_size = 100)
+            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache, 50, 120)
             time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
             time_BS = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].BS_time
             for mpb, bs in zip(time_MPB, time_BS):

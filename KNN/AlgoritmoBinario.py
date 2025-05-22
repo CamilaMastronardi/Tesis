@@ -30,8 +30,7 @@ def trainingDataBinario(groups_of_dates: list[str], use_cache: bool, mins: int) 
     for i, (YYYY, MM, DD) in tqdm(enumerate(zip(MPB_crosses_df.YYYY, MPB_crosses_df.MM, MPB_crosses_df.DD), start=1), total=len(MPB_crosses_df), desc="Procesando fechas"):
         orbitas = n_orbita(YYYY, MM, DD)
         for n in range(1, orbitas): 
-            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache, 50)
-            print(len(df_not_marked['posX']))
+            df_not_marked = filtradoVignes(YYYY, MM, DD, n, use_cache, 50, 50)
             time_MPB = MPB_crosses_df.loc[(MPB_crosses_df['YYYY'] == YYYY) & (MPB_crosses_df['MM'] == MM) & (MPB_crosses_df['DD'] == DD)].MPB_time
             for mpb in time_MPB:
                 if is_orbit_clasified(df_not_marked, mpb):
