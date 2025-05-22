@@ -136,8 +136,7 @@ def test_outbound_to_inbound():
     print(expected2)
     assert result2.equals(expected2), "Error: posX decreciente no fue invertido correctamente."
     print("Test funcion outbound to inbound pasado")
-test_outbound_to_inbound()
-'''
+
 i = 0
 while i<10: 
     i=i+1
@@ -147,4 +146,3 @@ while i<10:
     test_clase_KNN_usa_bien_el_peso()
     test_outbound_to_inbound()
 
-'''
