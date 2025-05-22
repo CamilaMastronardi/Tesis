@@ -328,20 +328,21 @@ def cross_validation_KNN(n_splits: int, training_data, mww: int, K: int, use_wei
     
         print(f'{i+1} de 5 finalizado/s, {round((time.time()-s)/60,2)} minutos')
 
-        Fecha = training_data['Fecha'][train_index]
-        orbita = training_data['orbita'][train_index]
-        times = training_data['time'][train_index]
-        Bx = training_data['Bx'][train_index]
-        By = training_data['By'][train_index]
-        Bz= training_data['Bz'][train_index]
-        posX = training_data['posX'][train_index]
-        posY = training_data['posY'][train_index]
-        posZ = training_data['posZ'][train_index]
-        B = np.array(X_train)
+        Fecha = training_data['Fecha'][test_index]
+        orbita = training_data['orbita'][test_index]
+        times = training_data['time'][test_index]
+        Bx = training_data['Bx'][test_index]
+        By = training_data['By'][test_index]
+        Bz= training_data['Bz'][test_index]
+        posX = training_data['posX'][test_index]
+        posY = training_data['posY'][test_index]
+        posZ = training_data['posZ'][test_index]
+        B = np.array(X_test)
         tipo_real = y_test
 
         dict = {"Fecha": Fecha, "orbita": orbita, "tipo": tipo_real, 'pred': y_pred,
-            "B": B, "Bx": Bx, "By": By, "Bz": Bz, "time": times, "posX": posX, "posY": posY, "posZ": posZ}
+            "B": B, "Bx": np.array(Bx), "By": np.array(By), "Bz": np.array(Bz), "time": np.array(times)
+            , "posX": np.array(posX), "posY": np.array(posY), "posZ": np.array(posZ)}
 
         result = pd.DataFrame(dict)
         result['B'] = result['B'].apply(lambda x: ', '.join(map(str, x)))
