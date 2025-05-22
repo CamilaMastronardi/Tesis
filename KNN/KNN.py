@@ -4,30 +4,18 @@ import pandas as pd
 import os
 import sys
 
-# Librerias para graficar
-import matplotlib.pyplot as plt
-import seaborn as sn
-
 #Librerias para medición de tiempos
 from tqdm import tqdm
 import time
 
 # Libreria para etiquetar inputs y outputs de funciones
-from typing import Callable, Any, Iterable
+from typing import Iterable
 
 # Libreria para acelerar loops
 from numba import njit, prange
 
-# Librerias para DTW
-from scipy.spatial.distance import squareform
-import collections
-import itertools
-
 # Funciones para estadistica
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.model_selection import cross_validate
 from sklearn.model_selection import ShuffleSplit
 from scipy.stats import mode
 
@@ -35,7 +23,7 @@ root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
 
 # Funciones de otros archivos
-from DescargaTrainingData import cargarTrainingData, cargarData
+from DescargaTrainingData import cargarData
 from PreprocesamientoDatos.CorteVignes import filtradoVignes 
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
