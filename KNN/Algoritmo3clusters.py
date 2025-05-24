@@ -16,7 +16,7 @@ root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
 
 # Funciones de otros archivos
-from DescargaTrainingData import cargarTrainingData, cargarData
+from DescargaTrainingData import cargarTrainingData
 from PreprocesamientoDatos.CorteVignes import filtradoVignes 
 from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 from KNN import data_for_train, cross_validation_KNN
@@ -87,11 +87,11 @@ if __name__== '__main__' :
     # Descargar Training data
     print('Descargando y ordenando data de entrenamiento')
     start_time = time.time()
-    data_KNN_completed = trainingData3Clusters(['Group1','Group2','Group3','Group4'], use_cache = True, mins = 2)
+    data_KNN_completed = trainingData3Clusters(['Group1','Group2','Group3','Group4'], use_cache = True, mins = 10)
     end_time = time.time()
     execution_time = end_time - start_time
 
     print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
 
-    for k in range(20, 31, 2):
-        cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=k, use_weights=True, folder = 'Resultados3clusters_2min')   
+    for k in range(1, 16, 3):
+        cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=k, use_weights=False, folder = 'Resultados3clusters_2min')   

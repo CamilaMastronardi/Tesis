@@ -55,6 +55,10 @@ if __name__== '__main__' :
 
     print(f"Tiempo de descarga y ordenado: {execution_time:.2f} segundos")
 
-    for k in range(10, 20, 2):
+    Ks = [1, 3, 4, 5, 6, 7, 9, 11]
+
+    for k in Ks:
         cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=k, use_weights=True, folder = 'ResultadosBinario_2min')   
 
+    for k in Ks:
+        cross_validation_KNN(n_splits=5, training_data=data_KNN_completed, mww=1000, K=k, use_weights=False, folder = 'ResultadosBinario_2min')   

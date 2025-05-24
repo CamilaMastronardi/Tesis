@@ -189,17 +189,14 @@ def test_cilindricas():
 
 #test_cilindricas()
 
-def graficoDeltaL(bandsize: int):
-    pos_MPB = pos()
-    rho_MPB_1, theta_MPB = cilindricas(pos_MPB)
-    rho_MPB = rho_MPB_1/radio_marte_prom
-    x_MPB = np.array(pos_MPB[0])/radio_marte_prom
+def graficoDeltaL(bandsize_min: int, bandsize_max: int):
 
     theta = np.linspace(-np.pi, np.pi, 100)
-    deltaL = L * bandsize / 100
+    deltaL_min = L * bandsize_min / 100
+    deltaL_max = L * bandsize_max / 100
     r = rVignes(theta, L)/radio_marte_prom
-    r_max = rVignes(theta, L + deltaL)/radio_marte_prom
-    r_min = rVignes(theta, L - deltaL)/radio_marte_prom
+    r_max = rVignes(theta, L + deltaL_max)/radio_marte_prom
+    r_min = rVignes(theta, L - deltaL_min)/radio_marte_prom
     
     x, y = r * (np.cos(theta), np.sin(theta))
     x_max, y_max = r_max * (np.cos(theta), np.sin(theta))
@@ -213,7 +210,7 @@ def graficoDeltaL(bandsize: int):
     fig, ax = plt.subplots(figsize=(largo1, largo2))
     
     ax.plot(np.cos(theta), np.sin(theta), color='black')
-    ax.scatter(x_MPB, rho_MPB, zorder=100, color = 'black', s=100, label='Posición MPB entrenamiento')
+    #ax.scatter(x_MPB, rho_MPB, zorder=100, color = 'black', s=100, label='Posición MPB entrenamiento')
 
     # Planeta en negro
     wedge = Wedge((0, 0), 1, 90, -90, facecolor='black', edgecolor='none')
@@ -227,13 +224,16 @@ def graficoDeltaL(bandsize: int):
     ax.plot(x_BS, y_BS, lw=2, color='grey', label='Vignes BS')
     ax.plot(x_min, y_min, color='pink')
     ax.plot(x_max, y_max, color='pink')
+    ax.tick_params(labelsize=30)
     ax.legend(loc=[1.01,0.75])
-    ax.set_ylabel(r'$\sqrt{y^2+z^2}$')
-    ax.set_xlabel(r'$x_{MSO}$')
+    ax.set_ylabel(r'$\sqrt{y^2+z^2}$', fontsize = 35)
+    ax.set_xlabel(r'$x_{MSO}$', fontsize = 35)
 
     ax.set_xlim(-3, 2)
     ax.set_ylim(-0.5 * largo2 / largo1, (4.5) * largo2 / largo1)
     plt.savefig('temp.png', bbox_inches='tight')
+
+graficoDeltaL(50, 120)
 
 def graficoOrbita():
     theta = np.linspace(-np.pi, np.pi, 200)
@@ -297,7 +297,7 @@ def graficoOrbita():
     plt.savefig('temp.png', bbox_inches='tight')
     plt.show()
 
-graficoOrbita()
+#graficoOrbita()
 
 def graficoHemisferio():
     theta = np.linspace(-np.pi, np.pi, 200)
