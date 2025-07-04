@@ -33,7 +33,7 @@ YYYY_n, MM_n, DD_n
  
 ### 5. Ejecutar el algoritmo de KNN para las fechas seleccionadas
 ```
-python3 KNN/IdentificaciónDeMPB.py fechas.txt
+python3 KNN/IdentificaciónDeMPB.py fechas.txt FALTA CREAR ESTE ARCHIVO.
 ```
 Este comando ejecuta todo el preprocesamiento de datos adémas del KNN. El preprocesamiento consiste en acomodar los datos crudos descargados de la página de MAVEN, eliminando las filas cuyo contenido son especificaciones tecnicas de MAVEN. Se pasan las tres columnas de dato temporal a una sola correspondiente a la hora con unidades decimales. Este paso puede ejecutarse de manera aislada (ver sección siguiente) utilizando **AcomodarDatosB.py**.
 
