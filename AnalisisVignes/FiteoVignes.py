@@ -208,7 +208,9 @@ def graficoDeltaL(bandsize_min: int, bandsize_max: int):
     largo1 = 20
     largo2 = 12
     fig, ax = plt.subplots(figsize=(largo1, largo2))
-    
+
+    deleted_zone = Wedge((0, 0), 100, 90, 25, facecolor='grey', alpha=0.3, edgecolor='none', zorder=50, label='Región descartada')
+    ax.add_patch(deleted_zone)
     ax.plot(np.cos(theta), np.sin(theta), color='black')
     #ax.scatter(x_MPB, rho_MPB, zorder=100, color = 'black', s=100, label='Posición MPB entrenamiento')
 
@@ -224,8 +226,8 @@ def graficoDeltaL(bandsize_min: int, bandsize_max: int):
     ax.plot(x_BS, y_BS, lw=2, color='grey', label='Vignes BS')
     ax.plot(x_min, y_min, color='pink')
     ax.plot(x_max, y_max, color='pink')
-    ax.tick_params(labelsize=30)
-    ax.legend(loc=[1.01,0.75])
+    ax.tick_params(zorder =1000, labelsize=30)
+    ax.legend(loc='best', fontsize = 35).set_zorder(1000)
     ax.set_ylabel(r'$\sqrt{y^2+z^2}$', fontsize = 35)
     ax.set_xlabel(r'$x_{MSO}$', fontsize = 35)
 
@@ -233,7 +235,7 @@ def graficoDeltaL(bandsize_min: int, bandsize_max: int):
     ax.set_ylim(-0.5 * largo2 / largo1, (4.5) * largo2 / largo1)
     plt.savefig('temp.png', bbox_inches='tight')
 
-graficoDeltaL(50, 120)
+graficoDeltaL(50, 50)
 
 def graficoOrbita():
     theta = np.linspace(-np.pi, np.pi, 200)
@@ -255,9 +257,9 @@ def graficoOrbita():
     ax.annotate(
         '', xy=(2, 0), xytext=(0, 0),
         arrowprops=dict(arrowstyle='->', linewidth=2, color='mediumorchid'),
-        zorder=150
+        zorder=150, fontsize=30
     )
-    ax.text(2.1, 0, r'$x_{MSO}$', color='mediumorchid', va='center', ha='left', fontsize=24)
+    ax.text(2.1, 0, r'$x_{MSO}$', color='mediumorchid', va='center', ha='left', fontsize=30)
 
     # Eje z_PC (-25° respecto de la vertical, mediumorchid)
     ang_deg = -25
@@ -268,9 +270,9 @@ def graficoOrbita():
     ax.annotate(
         '', xy=(zpc_x, zpc_y), xytext=(0, 0),
         arrowprops=dict(arrowstyle='->', linewidth=2, color='darkblue'),
-        zorder=150
+        zorder=150, fontsize=30
     )
-    ax.text(zpc_x * 1.05, zpc_y * 1.05, r'$z_{PC}$', color='darkblue', va='bottom', ha='left', fontsize=24, zorder=1000)
+    ax.text(zpc_x * 1.05, zpc_y * 1.05, r'$z_{PC}$', color='darkblue', va='bottom', ha='left', fontsize=30, zorder=1000)
 
     linea_ang_rad = np.radians(25)
     x1 = - np.cos(linea_ang_rad)
@@ -283,15 +285,16 @@ def graficoOrbita():
 
     # Ángulo en blanco con respecto a la vertical
     ax.plot(1/2*np.cos(theta_2), 1/2*np.sin(theta_2), color='white', zorder=1000)
-    ax.text(-0.27, 0.6, r'25°', color='white', zorder=1000, fontsize=16)
+    ax.text(-0.27, 0.6, r'25°', color='white', zorder=1000, fontsize=22)
+    ax.tick_params(labelsize=30)
 
     # Limites y estética
     ax.set_xlim(-3, 3)
     ax.set_ylim(-3, 3)
     ax.set_aspect('equal', 'box')
     plt.legend().set_zorder(1000)
-    ax.set_xlabel(r'$x_{MSO} (RM)$')
-    ax.set_ylabel(r'$\sqrt{y^2+z^2} (RM)$')
+    ax.set_xlabel(r'$x_{MSO} (RM)$', fontsize=30)
+    ax.set_ylabel(r'$\sqrt{y^2+z^2} (RM)$', fontsize=30)
     ax.grid(color='black')
 
     plt.savefig('temp.png', bbox_inches='tight')
@@ -319,9 +322,9 @@ def graficoHemisferio():
     ax.annotate(
         '', xy=(2, 0), xytext=(0, 0),
         arrowprops=dict(arrowstyle='->', linewidth=2, color='mediumorchid'),
-        zorder=150
+        zorder=150, fontsize=30
     )
-    ax.text(2.1, 0, r'$x_{MSO}$', color='mediumorchid', va='center', ha='left', fontsize=24)
+    ax.text(2.1, 0, r'$x_{MSO}$', color='mediumorchid', va='center', ha='left', fontsize=30)
 
     # Eje z_PC (-25° respecto de la vertical, mediumorchid)
     ang_deg = -25
@@ -334,7 +337,7 @@ def graficoHemisferio():
         arrowprops=dict(arrowstyle='->', linewidth=2, color='darkblue'),
         zorder=150
     )
-    ax.text(zpc_x * 1.05, zpc_y * 1.05, r'$z_{PC}$', color='darkblue', va='bottom', ha='left', fontsize=24, zorder=1000)
+    ax.text(zpc_x * 1.05, zpc_y * 1.05, r'$z_{PC}$', color='darkblue', va='bottom', ha='left', fontsize=30, zorder=1000)
 
     linea_ang_rad = np.radians(25)
     x1 = - np.cos(linea_ang_rad)
@@ -342,20 +345,21 @@ def graficoHemisferio():
     x2 = np.cos(linea_ang_rad)
     y2 = np.sin(linea_ang_rad)
     ax.plot([x1, x2], [y1, y2], linestyle='--', color='darkblue', linewidth=1.5, zorder=10000)
+    ax.tick_params(labelsize=30)
 
 
 
     # Ángulo en blanco con respecto a la vertical
     ax.plot(1/2*np.cos(theta_2), 1/2*np.sin(theta_2), color='white', zorder=1000)
-    ax.text(-0.27, 0.6, r'25°', color='white', zorder=1000, fontsize=16)
+    ax.text(-0.27, 0.6, r'25°', color='white', zorder=1000, fontsize=22)
 
     # Limites y estética
     ax.set_xlim(-3, 3)
     ax.set_ylim(-3, 3)
     ax.set_aspect('equal', 'box')
-    plt.legend().set_zorder(1000)
-    ax.set_xlabel(r'$x_{MSO} (RM)$')
-    ax.set_ylabel(r'$\sqrt{y^2+z^2} (RM)$')
+    plt.legend(fontsize=30).set_zorder(1000)
+    ax.set_xlabel(r'$x_{MSO} (RM)$',fontsize=30)
+    ax.set_ylabel(r'$\sqrt{y^2+z^2} (RM)$', fontsize=30)
     ax.grid(color='black')
 
     plt.savefig('temp.png', bbox_inches='tight')
