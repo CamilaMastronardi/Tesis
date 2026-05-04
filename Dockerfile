@@ -1,5 +1,5 @@
 #Empiezo a armar la imagen a partir de la que existe de base para python
-FROM python
+FROM python:3.10-slim
 
 #indinco en donde trabajan los pasos de crear la imagen
 WORKDIR /app
