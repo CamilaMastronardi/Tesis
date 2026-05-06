@@ -29,21 +29,22 @@ from PreprocesamientoDatos.PromedioPorVentana import n_orbita
 
 #para fechas no clasificadas
 def data_for_KNN(j: int, YYYY: str, MM: str, DD: str, orbita: int, df: pd.DataFrame, data: pd.DataFrame) -> pd.DataFrame:
-    data.loc[j, ["Fecha", "orbita", "B", "Bx", "By", "Bz", "time", "posX", "posY", "posZ"]] = [
+    data.loc[j, ["Fecha", "orbita", "B", "time", "posX", "posY", "posZ"]] = [
         f"{YYYY}-{MM}-{DD}", orbita, df["mod_B"].to_numpy(), df["time"].to_numpy(), 
         df["posX"].to_numpy(), df["posY"].to_numpy(), df["posZ"].to_numpy(),
-
     ]
     return data
 
 def outbound_to_inbound(df):
-    posx = df['posX']
+    posx = df['posX'][0]
     posXdt = np.gradient(posx)
-    type = np.mean(posXdt)
-    if type>=0:
-        return df
-    if type<0: 
-        df_inverted = df.loc[::-1]
+    type_orbit = np.mean(posXdt)
+    if type_orbit >= 0:
+        return df.copy()
+
+    else:
+        df_inverted = df.copy()
+        df_inverted['mod_B'] = df['B'].iloc[::-1].values
         return df_inverted
 
 def completeData(groups_of_dates: str, use_cache: bool) -> pd.DataFrame: 
