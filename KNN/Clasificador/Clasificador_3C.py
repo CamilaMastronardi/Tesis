@@ -109,6 +109,6 @@ def KNN_3clusters(file_dates: str, save_file:str):
     print(f"Tiempo total de ejecución: {execution_time:.2f} segundos")
 
 if __name__ == "__main__":
-    file_dates = 'fechas_prueba'
+    file_dates = 'fechas_2015'
     filename = 'prueba'
     KNN_3clusters(file_dates, filename)
