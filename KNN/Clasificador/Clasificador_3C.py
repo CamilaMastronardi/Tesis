@@ -41,8 +41,8 @@ def _KNN_3clusters(data_to_classify, training_data, folder: str, filename: str, 
         Folder name for saving results
     """
     # Crear carpeta si no existe
-    if not os.path.exists(f'/app/KNN/Cross_Validation/{folder}'):
-        os.makedirs(f'/app/KNN/Cross_Validation/{folder}')
+    if not os.path.exists(f'/app/KNN/Clasificador/{folder}'):
+        os.makedirs(f'/app/KNN/Clasificador/{folder}')
 
     X_train = training_data['B']
     y_train = training_data['tipo'].to_numpy().astype(int)
