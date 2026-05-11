@@ -41,8 +41,8 @@ def _KNN_3clusters(data_to_classify, training_data, folder: str, filename: str, 
         Folder name for saving results
     """
     # Crear carpeta si no existe
-    if not os.path.exists(f'/app/KNN/Cross_Validation/{folder}'):
-        os.makedirs(f'/app/KNN/Cross_Validation/{folder}')
+    if not os.path.exists(f'/app/KNN/Clasificador/{folder}'):
+        os.makedirs(f'/app/KNN/Clasificador/{folder}')
 
     X_train = training_data['B']
     y_train = training_data['tipo'].to_numpy().astype(int)
@@ -109,6 +109,6 @@ def KNN_3clusters(file_dates: str, save_file:str):
     print(f"Tiempo total de ejecución: {execution_time:.2f} segundos")
 
 if __name__ == "__main__":
-    file_dates = 'fechas_prueba'
-    filename = 'prueba'
+    file_dates = 'fechas_gabi'
+    filename = 'Gabi_3clusters_analysis'
     KNN_3clusters(file_dates, filename)
