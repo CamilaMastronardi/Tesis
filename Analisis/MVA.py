@@ -54,7 +54,7 @@ def mva_b(YYYY: str, MM: str, DD: str, t_min: float, t_max: float) -> np.matrix:
     Matrix of variance M for the magnetic field components Bx, By, Bz 
     and the dataframe with the data used for the analysis (filtered by time interval)
     """
-    df = acomodarDatos(YYYY, MM, DD, res=0)
+    df = acomodarDatos(YYYY, MM, DD, res=1)
     df_MVA = df.loc[(df.time >= t_min) & (df.time <= t_max)]
     B_vec = [df_MVA.Bx, df_MVA.By, df_MVA.Bz]
     M_var = matriz_varianza(B_vec)
@@ -130,7 +130,7 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     Thickness of the MPB in kilometers
     """   
     df_new, autoval, autovec = MinVarianceSpace(YYYY, MM, DD, t_min, t_max)
-    df = acomodarDatos(YYYY, MM, DD)
+    df = acomodarDatos(YYYY, MM, DD, res=1)
     df_out=df.loc[(df.time >= t_out_min) & (df.time <= t_out_max)]
     df_in=df.loc[(df.time >= t_in_min) & (df.time <= t_in_max)]
 
@@ -169,6 +169,8 @@ if __name__== '__main__' :
   print(f"Maximum thickness of the MPB: {max_thickness} km")
 
   df_new, autoval, autovec = MinVarianceSpace('2016', '03', '16', t_min, t_max)
+  print(df_new)
+  print(f"lambda2/lambda3: {autoval[1]/autoval[2]}")
 
   fig, axs = plt.subplots(1,2,figsize=(14,10))
   axs[0].set_aspect('equal')

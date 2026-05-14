@@ -74,6 +74,12 @@ def _KNN_3clusters(data_to_classify, training_data, folder: str, filename: str, 
     result.to_csv(path_file)
 
 def KNN_3clusters(file_dates: str, save_file:str):
+
+    """
+    Main function to perform KNN classification with 3 clusters. 
+    It downloads and prepares the data, then performs KNN classification and saves the results in 
+    a csv file.
+    """
     
     start_time = time.time()
     print('Descargando y ordenando data de entrenamiento')
