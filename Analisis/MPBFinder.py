@@ -12,7 +12,7 @@ plt.style.use("./matplotlibStyles.txt")
 # Librerias basicas para manejo de datos
 # Carpeta donde está este script
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-archivo = os.path.join(BASE_DIR,'../KNN/Clasificador/Prueba/prueba.csv')
+archivo = os.path.join(BASE_DIR,'../KNN/Clasificador/Prueba/Gabi_3clusters_analysis.csv')
 
 def string_to_array(string: str):
     '''Convierte una cadena con formato de array (ej: "[1 2 3]") a un array de numpy.'''
@@ -26,6 +26,8 @@ for col in columnas_arrays:
 
 
 def detectar_mpb(predicciones: list, n_consecutivos: int = 2):
+    '''Detecta el índice donde ocurre la transición entre clases 1
+      y 2 (MPB) en una lista de predicciones.'''
     pred = np.array(predicciones)
     for i in range(len(pred) - 2*n_consecutivos + 1):
 
