@@ -156,22 +156,23 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     max_thickness = np.abs(np.dot(r_vec_out, normal))
     return min_thickness, max_thickness
 
-t_min = 18 + 13/60 + 33/3600
-t_max = 18 + 14/60 + 6/3600
-t_out_min = 18 + 13/60 + 0/3600
-t_out_max = 18 + 14/60 + 51/3600
-t_in_min = 18 + 13/60 + 13/3600
-t_in_max = 18 + 14/60 + 6/3600
-min_thickness, max_thickness = thickness_mpb('2016', '03', '16', t_min, t_max, t_in_min, t_in_max, t_out_min, t_out_max)
+if __name__== '__main__' :
+  t_min = 18 + 13/60 + 33/3600
+  t_max = 18 + 14/60 + 6/3600
+  t_out_min = 18 + 13/60 + 0/3600
+  t_out_max = 18 + 14/60 + 51/3600
+  t_in_min = 18 + 13/60 + 13/3600
+  t_in_max = 18 + 14/60 + 6/3600
+  min_thickness, max_thickness = thickness_mpb('2016', '03', '16', t_min, t_max, t_in_min, t_in_max, t_out_min, t_out_max)
 
-print(f"Minimum thickness of the MPB: {min_thickness} km")
-print(f"Maximum thickness of the MPB: {max_thickness} km")
+  print(f"Minimum thickness of the MPB: {min_thickness} km")
+  print(f"Maximum thickness of the MPB: {max_thickness} km")
 
-df_new, autoval, autovec = MinVarianceSpace('2016', '03', '16', t_min, t_max)
+  df_new, autoval, autovec = MinVarianceSpace('2016', '03', '16', t_min, t_max)
 
-fig, axs = plt.subplots(1,2,figsize=(14,10))
-axs[0].set_aspect('equal')
-axs[1].set_aspect('equal')
-axs[0].plot(df_new['B3'], df_new['B1'], '-')
-axs[1].plot(df_new['B2'], df_new['B1'], '-')
-plt.savefig("temp_MVA.png", dpi=300)
+  fig, axs = plt.subplots(1,2,figsize=(14,10))
+  axs[0].set_aspect('equal')
+  axs[1].set_aspect('equal')
+  axs[0].plot(df_new['B3'], df_new['B1'], '-')
+  axs[1].plot(df_new['B2'], df_new['B1'], '-')
+  plt.savefig("temp_MVA.png", dpi=300)
