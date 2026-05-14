@@ -5,5 +5,7 @@ __pycache__\.
 temp*
 PreprocesamientoDatos/cache/*
 .vscode/
+DatosCrudos/datos_campo_magnetico_crudos_full/*
+DatosCrudos/datos_campo_magnetico_crudos_pc_full/*
 
 

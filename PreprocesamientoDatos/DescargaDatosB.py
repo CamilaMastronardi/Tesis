@@ -19,8 +19,8 @@ def day_of_year(DD: int, MM: int, YYYY: int):
     day_of_year = date.timetuple().tm_yday
     return f"{day_of_year:03d}"
 
-def data_is_downloaded(YYYY: str, MM: str, DD: str):
-    file = os.path.join(DATOS_CAMPO_PATH, f"datos_{DD}-{MM}-{YYYY}.csv")
+def data_is_downloaded(YYYY: str, MM: str, DD: str, path=DATOS_CAMPO_PATH):
+    file = os.path.join(path, f"datos_{DD}-{MM}-{YYYY}.csv")
     return os.path.exists(file)
 
 def descargarDatosCampo(YYYY: str,MM: str,DD: str): #Define la URL segun la fecha ingresada
@@ -65,6 +65,50 @@ def descargarDatosCampo(YYYY: str,MM: str,DD: str): #Define la URL segun la fech
             columns = line.split()
             archivo.write(columns[13] + '\n')
 
+DATOS_CAMPO_PATH_full = '/app/DatosCrudos/datos_campo_magnetico_crudos_full'
+DATOS_CAMPO_PATH_PC_full = '/app/DatosCrudos/datos_campo_magnetico_crudos_pc_full'
+def descargarDatosCampo_full(YYYY: str,MM: str,DD: str): #Define la URL segun la fecha ingresada
+    if data_is_downloaded(YYYY, MM, DD, DATOS_CAMPO_PATH_full):
+      return
+      
+    DOY = str(day_of_year(int(DD), int(MM), int(YYYY)))
+    url = f"https://pds-ppi.igpp.ucla.edu/data/maven-mag-calibrated/data/ss/highres/{YYYY}/{MM}/mvn_mag_l2_{YYYY}{DOY}ss_{YYYY}{MM}{DD}_v01_r01.sts" 
+    url_pc = f"https://pds-ppi.igpp.ucla.edu/data/maven-mag-calibrated/data/pc/highres/{YYYY}/{MM}/mvn_mag_l2_{YYYY}{DOY}pc_{YYYY}{MM}{DD}_v01_r01.sts" 
+    #esto despues lo tengo que adaptar porque estaba colapsada la pagina
+
+# Realizar una solicitud GET a una URL
+    response = requests.get(url)
+    response.raise_for_status() #se fija que onda el status, por ejemplo si es 404 (todo mal), 403 (sin permisos), 200 (todo ok)
+    lines = response.text.splitlines()
+
+    response_pc = requests.get(url_pc)
+    response_pc.raise_for_status() #se fija que onda el status, por ejemplo si es 404 (todo mal), 403 (sin permisos), 200 (todo ok)
+    lines_pc = response_pc.text.splitlines()
+
+#Creo carpeta para la bajada de los datos
+    if not os.path.exists(DATOS_CAMPO_PATH_full):
+      os.makedirs(DATOS_CAMPO_PATH_full)
+    if not os.path.exists(DATOS_CAMPO_PATH_PC_full):
+      os.makedirs(DATOS_CAMPO_PATH_PC_full)
+
+#Crea u archivo para meter los datos que salen de la API
+    archivoDestino = os.path.join(DATOS_CAMPO_PATH_full, f"datos_{DD}-{MM}-{YYYY}.csv")
+    archivoDestino_pc = os.path.join(DATOS_CAMPO_PATH_PC_full, f"z_{DD}-{MM}-{YYYY}_pc.csv")
+    
+#por ultimo escribe en el archivo lo que sale de la API
+    with open(archivoDestino, "w") as archivo:
+      for line in lines:
+        if line.strip() and line.startswith('  ' + YYYY):
+            archivo.write(line + '\n')
+
+    
+#guardo solo la coordenada z en coordenadas centradas en el planeta
+    with open(archivoDestino_pc, "w") as archivo:
+      for line in lines_pc:
+        if line.strip() and line.startswith('  ' + YYYY):
+            columns = line.split()
+            archivo.write(columns[13] + '\n')
+
 if __name__== '__main__' :
 
   if len(sys.argv) not in (2,3): #se fija que se haya ingresado un parametro despues del nombre del programa (argv[0])
@@ -76,7 +120,7 @@ if __name__== '__main__' :
     fecha = sys.argv[1] #Usa el argumento indicado para ejecutar el programa
     YYYY, MM, DD = fecha.split('-')
   # Llama a la función para descargar datos de campo magnetico
-    descargarDatosCampo(YYYY,MM,DD)
+    descargarDatosCampo_full(YYYY,MM,DD)
     print('hecho')
   elif len(sys.argv) == 3:
     parametro_inicial = sys.argv[1]
@@ -90,7 +134,7 @@ if __name__== '__main__' :
     count = 1
     while fecha_actual <= fecha_final:
       print(f"Descargando dia numero {count} de {fecha_final-fecha_inicial}")
-      descargarDatosCampo(fecha_actual.strftime('%Y'),
+      descargarDatosCampo_full(fecha_actual.strftime('%Y'),
                           fecha_actual.strftime('%m'),
                           fecha_actual.strftime('%d'))
       fecha_actual += timedelta(days=1)
