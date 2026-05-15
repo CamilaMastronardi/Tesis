@@ -12,20 +12,22 @@ plt.style.use("./matplotlibStyles.txt")
 # Librerias basicas para manejo de datos
 # Carpeta donde está este script
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-archivo = os.path.join(BASE_DIR,'../KNN/Clasificador/Prueba/prueba.csv')
 
 def string_to_array(string: str):
     '''Convierte una cadena con formato de array (ej: "[1 2 3]") a un array de numpy.'''
     string = string.strip("[]")
     return np.fromstring(string, sep=' ')
 
-columnas_arrays = ["B", "time", "posX", "posY", "posZ"]
-df = pd.read_csv(archivo, index_col=0)
-for col in columnas_arrays:
-    df[col] = df[col].apply(string_to_array)
-
+def file_to_detect_mpb(file_path: str):
+    columnas_arrays = ["B", "time", "posX", "posY", "posZ"]
+    df = pd.read_csv(file_path, index_col=0)
+    for col in columnas_arrays:
+        df[col] = df[col].apply(string_to_array)
+    return df
 
 def detectar_mpb(predicciones: list, n_consecutivos: int = 2):
+    '''Detecta el índice donde ocurre la transición entre clases 1
+      y 2 (MPB) en una lista de predicciones.'''
     pred = np.array(predicciones)
     for i in range(len(pred) - 2*n_consecutivos + 1):
 
@@ -53,6 +55,9 @@ def detectar_mpb(predicciones: list, n_consecutivos: int = 2):
     return None
 
 if __name__ == "__main__":
+    archivo = os.path.join(BASE_DIR,'../KNN/Clasificador/Prueba/Gabi_3clusters_analysis.csv')
+    df = file_to_detect_mpb(archivo)
+    df = df[df['Fecha'] == '2016-04-05']
 
     colores = {
         0: "tab:blue",
