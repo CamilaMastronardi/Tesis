@@ -135,13 +135,16 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     df_in=df.loc[(df.time >= t_in_min) & (df.time <= t_in_max)]
 
     normal = autovec[:,0]
+    if normal[0] < 0:
+        normal = -normal
     print(f"Normal vector to the MPB: {normal}")
 
     x_out = (df_out['posX'].iloc[-1]-df_out['posX'].iloc[0])
     y_out = (df_out['posY'].iloc[-1]-df_out['posY'].iloc[0])
     z_out = (df_out['posZ'].iloc[-1]-df_out['posZ'].iloc[0])
     r_vec_out = np.array([x_out, y_out, z_out])
-
+    
+    print(x_out, y_out, z_out)
     x_in = (df_in['posX'].iloc[-1]-df_in['posX'].iloc[0])
     y_in = (df_in['posY'].iloc[-1]-df_in['posY'].iloc[0])
     z_in = (df_in['posZ'].iloc[-1]-df_in['posZ'].iloc[0])
@@ -163,6 +166,16 @@ if __name__== '__main__' :
   t_out_max = 18 + 14/60 + 51/3600
   t_in_min = 18 + 13/60 + 13/3600
   t_in_max = 18 + 14/60 + 6/3600
+
+  '''
+  t_min = (12.6624 + 12.6764)/2
+  t_max = (12.6938+12.689 )
+  t_out_min = 12.6624   
+  t_out_max = 12.6938
+  t_in_min = 12.6764
+  t_in_max = 12.689 
+  '''
+
   min_thickness, max_thickness = thickness_mpb('2016', '03', '16', t_min, t_max, t_in_min, t_in_max, t_out_min, t_out_max)
 
   print(f"Minimum thickness of the MPB: {min_thickness} km")
@@ -170,7 +183,7 @@ if __name__== '__main__' :
 
   df_new, autoval, autovec = MinVarianceSpace('2016', '03', '16', t_min, t_max)
   print(df_new)
-  print(f"lambda2/lambda3: {autoval[1]/autoval[2]}")
+  print(f"lambdas: {autoval}")
 
   fig, axs = plt.subplots(1,2,figsize=(14,10))
   axs[0].set_aspect('equal')
