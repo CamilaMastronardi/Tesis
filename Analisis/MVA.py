@@ -143,7 +143,8 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     y_out = (df_out['posY'].iloc[-1]-df_out['posY'].iloc[0])
     z_out = (df_out['posZ'].iloc[-1]-df_out['posZ'].iloc[0])
     r_vec_out = np.array([x_out, y_out, z_out])
-
+    
+    print(x_out, y_out, z_out)
     x_in = (df_in['posX'].iloc[-1]-df_in['posX'].iloc[0])
     y_in = (df_in['posY'].iloc[-1]-df_in['posY'].iloc[0])
     z_in = (df_in['posZ'].iloc[-1]-df_in['posZ'].iloc[0])
@@ -189,6 +190,6 @@ if __name__== '__main__' :
   fig, axs = plt.subplots(1,2,figsize=(14,10))
   axs[0].set_aspect('equal')
   axs[1].set_aspect('equal')
-  axs[0].plot(df_new['B1'], df_new['B3'], '-')
-  axs[1].plot(df_new['B2'], df_new['B3'], '-')
+  axs[0].plot(df_new['B3'], df_new['B1'], '-')
+  axs[1].plot(df_new['B2'], df_new['B1'], '-')
   plt.savefig("temp_MVA.png", dpi=300)
