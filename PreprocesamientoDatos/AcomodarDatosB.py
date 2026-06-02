@@ -7,17 +7,18 @@ col_names = ["año","nro_día","hora","minuto", "segundo", "milisegundo", "dia d
 
 def acomodarDatos(YYYY: str,MM: str,DD: str, res = 1) -> pd.DataFrame:
   if res == 1:
-    df = pd.read_csv(f'/app/DatosCrudos/datos_campo_magnetico_crudos/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=0, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
+    df = pd.read_csv(f'/app/DatosCrudos/datos_campo_magnetico_crudos/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=0, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'milisegundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
   else:
-    df = pd.read_csv(f'/app/DatosCrudos/datos_campo_magnetico_crudos_full/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=0, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
+    df = pd.read_csv(f'/app/DatosCrudos/datos_campo_magnetico_crudos_full/datos_{DD}-{MM}-{YYYY}.csv', sep='\s+',skiprows=0, header=None, lineterminator='\n', names = col_names, usecols=['año','nro_día', 'hora', 'minuto', 'segundo', 'milisegundo', 'Bx', 'By', 'Bz', 'rangoB', 'posX', 'posY', 'posZ'])
   mes = round(df.nro_día/30) + 1
   dia = df.nro_día - (mes-1)
   
   hora = df.hora
   minuto = df.minuto
   seg = df.segundo
+  miliseg = df.milisegundo
   
-  time = hora + minuto/60 + seg/3600 #tiempo en horas
+  time = hora + minuto/60 + seg/3600 + miliseg/3600000 #tiempo en horas
   
   B_vector = np.array([df.Bx,df.By,df.Bz]).transpose()
   B_norm = np.zeros(len(B_vector[:,0]))

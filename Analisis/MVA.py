@@ -54,7 +54,7 @@ def mva_b(YYYY: str, MM: str, DD: str, t_min: float, t_max: float) -> np.matrix:
     Matrix of variance M for the magnetic field components Bx, By, Bz 
     and the dataframe with the data used for the analysis (filtered by time interval)
     """
-    df = acomodarDatos(YYYY, MM, DD, res=1)
+    df = acomodarDatos(YYYY, MM, DD, res=0)
     df_MVA = df.loc[(df.time >= t_min) & (df.time <= t_max)]
     B_vec = [df_MVA.Bx, df_MVA.By, df_MVA.Bz]
     M_var = matriz_varianza(B_vec)
@@ -82,15 +82,15 @@ def MinVarianceSpace(YYYY: str, MM: str, DD: str, t_min: float, t_max: float):
     B vector in the space of variance, and the eigenvalues and eigenvectors of the variance matrix
     """
     MVAmatrix, df = mva_b(YYYY, MM, DD, t_min, t_max)
-    autoval, autovec = np.linalg.eig(MVAmatrix)
-    idx = np.argsort(autoval)
+    autoval, autovec = np.linalg.eigh(MVAmatrix)
+    idx = np.argsort(autoval)[::-1]
 
     autoval = autoval[idx]
     autovec = autovec[:, idx]
 
-    e1 = autovec[:, 2]
+    e1 = autovec[:, 0]
     e2 = autovec[:, 1]
-    e3 = autovec[:, 0]
+    e3 = autovec[:, 2]
 
     # matriz de cambio de base (columnas = nueva base)
     A = np.column_stack((e1, e2, e3))
@@ -101,7 +101,7 @@ def MinVarianceSpace(YYYY: str, MM: str, DD: str, t_min: float, t_max: float):
 
     B_new = B @ A_inv.T
 
-    df_new = df
+    df_new = df.copy()
 
     df_new[["B1", "B2", "B3"]] = B_new
 
@@ -130,11 +130,13 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     Thickness of the MPB in kilometers
     """   
     df_new, autoval, autovec = MinVarianceSpace(YYYY, MM, DD, t_min, t_max)
-    df = acomodarDatos(YYYY, MM, DD, res=1)
+    df = acomodarDatos(YYYY, MM, DD, res=0)
     df_out=df.loc[(df.time >= t_out_min) & (df.time <= t_out_max)]
     df_in=df.loc[(df.time >= t_in_min) & (df.time <= t_in_max)]
 
-    normal = autovec[:,0]
+    normal = autovec[:,2]
+    if normal[0] < 0:
+        normal = -normal
     print(f"Normal vector to the MPB: {normal}")
 
     x_out = (df_out['posX'].iloc[-1]-df_out['posX'].iloc[0])
@@ -157,24 +159,36 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     return min_thickness, max_thickness
 
 if __name__== '__main__' :
-  t_min = 18 + 13/60 + 33/3600
-  t_max = 18 + 14/60 + 6/3600
-  t_out_min = 18 + 13/60 + 0/3600
-  t_out_max = 18 + 14/60 + 51/3600
-  t_in_min = 18 + 13/60 + 13/3600
-  t_in_max = 18 + 14/60 + 6/3600
-  min_thickness, max_thickness = thickness_mpb('2016', '03', '16', t_min, t_max, t_in_min, t_in_max, t_out_min, t_out_max)
+  t_min_list = [12.675, 18 + 13/60 + 33/3600, 19.31666667,13.07388889, 5.271388889, 12.25, 9+49/60+9.958/3600]
+  t_max_list = [12.684444, 18 + 14/60 + 6/3600, 19.32388889, 13.08055556, 5.278611111, 12.265,  9+49/60+10.145/3600]
+  t_out_min_list = [12.6624, 18 + 13/60 + 0/3600, 19.29877, 13.0664, 5.258838, 12.20975, 9.7333]
+  t_out_max_list = [12.6938, 18 + 14/60 + 51/3600, 19.3414, 13.0824, 5.290666, 12.30619, 9.99986]
+  t_in_min_list = [12.6764, 18 + 13/60 + 13/3600, 19.31378, 13.07095, 5.268676, 12.23922, 9.8116]
+  t_in_max_list = [12.689, 18 + 14/60 + 6/3600, 19.32459, 13.076, 5.276777, 12.26399, 9.89378]
+  
+  fecha = [['2015', '10', '10'], ['2016', '03', '16'],['2015', '10', '12'], ['2016', '03', '31'], ['2016', '04', '05'], ['2017','11','24'], ['2014', '12', '25']]
+  i = 1
+  YYYY, MM, DD = fecha[i][0], fecha[i][1], fecha[i][2]
+
+  t_in_max = t_in_max_list[i]
+  t_in_min = t_in_min_list[i]
+  t_out_max = t_out_max_list[i]
+  t_out_min = t_out_min_list[i]
+  t_min = t_min_list[i]
+  t_max = t_max_list[i]
+  
+  min_thickness, max_thickness = thickness_mpb(YYYY, MM, DD, t_min, t_max, t_in_min, t_in_max, t_out_min, t_out_max)
 
   print(f"Minimum thickness of the MPB: {min_thickness} km")
   print(f"Maximum thickness of the MPB: {max_thickness} km")
 
-  df_new, autoval, autovec = MinVarianceSpace('2016', '03', '16', t_min, t_max)
-  print(df_new)
+  df_new, autoval, autovec = MinVarianceSpace(YYYY, MM, DD, t_min, t_max)
+  print(f"lambdas: {autoval}")
   print(f"lambda2/lambda3: {autoval[1]/autoval[2]}")
 
   fig, axs = plt.subplots(1,2,figsize=(14,10))
   axs[0].set_aspect('equal')
   axs[1].set_aspect('equal')
-  axs[0].plot(df_new['B3'], df_new['B1'], '-')
-  axs[1].plot(df_new['B2'], df_new['B1'], '-')
+  axs[0].plot(df_new['B1'], df_new['B3'], '-')
+  axs[1].plot(df_new['B2'], df_new['B3'], '-')
   plt.savefig("temp_MVA.png", dpi=300)
