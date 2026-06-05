@@ -152,6 +152,8 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
     theta_out = np.arccos(np.dot(r_vec_out/np.linalg.norm(r_vec_out), normal/np.linalg.norm(normal)))*180/np.pi
     theta_in = np.arccos(np.dot(r_vec_in/np.linalg.norm(r_vec_in), normal/np.linalg.norm(normal)))*180/np.pi
 
+    Bm = df_new[["Bx", "By", "Bz"]].mean().values
+
     theta_kB = np.degrees(
     np.arccos(
         np.dot(Bm, normal)
@@ -178,7 +180,7 @@ if __name__== '__main__' :
   t_in_max_list = [12.689, 18.235, 19.32459, 13.076, 5.276777, 12.26399, 9.89378]
   
   fecha = [['2015', '10', '10'], ['2016', '03', '16'],['2015', '10', '12'], ['2016', '03', '31'], ['2016', '04', '05'], ['2017','11','24'], ['2014', '12', '25']]
-  i = -2
+  i = 1
   YYYY, MM, DD = fecha[i][0], fecha[i][1], fecha[i][2]
 
   t_in_max = t_in_max_list[i]
