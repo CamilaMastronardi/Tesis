@@ -151,9 +151,20 @@ def  thickness_mpb(YYYY: str, MM: str, DD: str, t_min: float, t_max: float,
 
     theta_out = np.arccos(np.dot(r_vec_out/np.linalg.norm(r_vec_out), normal/np.linalg.norm(normal)))*180/np.pi
     theta_in = np.arccos(np.dot(r_vec_in/np.linalg.norm(r_vec_in), normal/np.linalg.norm(normal)))*180/np.pi
+
+    theta_kB = np.degrees(
+    np.arccos(
+        np.dot(Bm, normal)
+        /(np.linalg.norm(Bm)*np.linalg.norm(normal))
+    )
+    )
+
+    if theta_kB > 90:
+        theta_kB = 180 - theta_kB
     
     print(f"Theta (in): {theta_in}")
     print(f"Theta (out): {theta_out}")
+    print(f"Theta (kB): {theta_kB}")
     min_thickness = np.abs(np.dot(r_vec_in, normal)) #en km
     max_thickness = np.abs(np.dot(r_vec_out, normal))
     return min_thickness, max_thickness
